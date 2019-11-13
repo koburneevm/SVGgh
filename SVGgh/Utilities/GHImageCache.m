@@ -130,7 +130,8 @@ NSString* const kFacesURLsAddedKey = @"urls";
     else
     {
 		CGImageRef imageRef = 0;
-        if([[aURL pathExtension] isEqualToString:@"png"])
+        NSString* extension = [[aURL pathExtension] lowercaseString];
+        if ([extension isEqualToString:@"png"])
 		{
 			CGDataProviderRef pngProvider = CGDataProviderCreateWithURL((__bridge CFURLRef) aURL);
 			if(pngProvider != 0)
@@ -140,7 +141,7 @@ NSString* const kFacesURLsAddedKey = @"urls";
 				CFRelease(pngProvider);
 			}
 		}
-		else  if([[aURL pathExtension] isEqualToString:@"jpg"])
+		else if ([extension isEqualToString:@"jpg"])
 		{
 			CGDataProviderRef jpgProvider = CGDataProviderCreateWithURL((__bridge CFURLRef) aURL);
 			if(jpgProvider != 0)
@@ -154,7 +155,12 @@ NSString* const kFacesURLsAddedKey = @"urls";
 		{
 			result = [[UIImage alloc] initWithContentsOfFile:[aURL path]];
 		}
-		if(imageRef != 0)
+        
+        if (result)
+        {
+            [self setCachedImage:result forURL:aURL];
+        }
+        else if (imageRef != 0)
 		{
 			result = [[UIImage alloc] initWithCGImage:imageRef];
 			CFRelease(imageRef);
