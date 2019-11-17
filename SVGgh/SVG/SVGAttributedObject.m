@@ -488,7 +488,7 @@
                 
                 CGRect	drawRect = myRect;
                 NSString* preserveAspectRatioString = [self.attributes objectForKey:@"preserveAspectRatio"];
-                if(preserveAspectRatioString != nil && ![preserveAspectRatioString isEqualToString:@"none"])
+                if(!clippingObject && preserveAspectRatioString != nil && ![preserveAspectRatioString isEqualToString:@"none"])
                 {
                     CGFloat	naturalWidth = CGImageGetWidth(quartzImage);
                     CGFloat	naturalHeight = CGImageGetHeight(quartzImage);
