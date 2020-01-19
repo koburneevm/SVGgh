@@ -23,13 +23,18 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
+
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+#else
 #import <Foundation/Foundation.h>
+#endif
 
 #import <SVGgh/GHButton.h>
-#import <SVGgh/GHControl.h> 
+#import <SVGgh/GHControl.h>
 #import <SVGgh/GHControlFactory.h>
 #import <SVGgh/GHImageCache.h>
-#import <SVGGh/GHSegmentedControl.h>
+#import <SVGgh/GHSegmentedControl.h>
 #import <SVGgh/GHRenderable.h>
 #import <SVGgh/SVGDocumentView.h>
 #import <SVGgh/SVGRendererLayer.h>

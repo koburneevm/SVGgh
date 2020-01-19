@@ -25,9 +25,15 @@
 //
 //  Created by Glenn Howes on 1/12/11.
 
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import CoreGraphics;
+#else
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
-#import "SVGContext.h"
+#endif
+
+@protocol SVGContext;
 
 
 /*
@@ -47,6 +53,8 @@ enum
 
 typedef uint32_t ClippingType;
 
+NS_ASSUME_NONNULL_BEGIN
+
 /*! @brief a protocol adoptable by an object design to be rendered to the screen or to add to the clipping
 * @see GHRenderableObject
 */
@@ -63,7 +71,7 @@ typedef uint32_t ClippingType;
 /*! @property attributes
 * @brief presumably this object will be an GHAttributedObject
 */
-@property(nonatomic, readonly)          NSDictionary*       attributes;
+@property(nonatomic, readonly)         NSDictionary* __nullable        attributes;
 
 /*! @brief draw the object into a Core Graphics context
 * @param quartzContext the Core Graphics context into which to render
@@ -75,7 +83,7 @@ typedef uint32_t ClippingType;
 * @param testPoint a Core Graphic point in the coordinate system of this object's parent
 * @param svgContext state information about the document environment in which this object is being visited
 */
--(id<GHRenderable>) findRenderableObject:(CGPoint)testPoint withSVGContext:(id<SVGContext>)svgContext;
+-(nullable id<GHRenderable>) findRenderableObject:(CGPoint)testPoint withSVGContext:(id<SVGContext>)svgContext;
 
 /*! @brief clip the appropriate region for this region
 * @param quartzContext the Core Graphics context needing clipping
@@ -102,3 +110,5 @@ typedef uint32_t ClippingType;
 -(CGRect) getBoundingBoxWithSVGContext:(id<SVGContext>)svgContext;
 
 @end
+
+NS_ASSUME_NONNULL_END

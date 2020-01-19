@@ -26,9 +26,19 @@
 //  Created by Glenn Howes on 5/19/11.
 
 
+#if defined(__has_feature) && __has_feature(modules)
+    @import Foundation;
+    @import CoreText;
+#else
+    #import <Foundation/Foundation.h>
+    #import <CoreText/CoreText.h>
+#endif
+
 #import "SVGAttributedObject.h"
-#import <CoreText/CoreText.h>
 #import "GHPathDescription.h"
+
+
+NS_ASSUME_NONNULL_BEGIN
 
 /*! @brief manifestation of an SVG 'text' entity a collection of other entities
 */
@@ -48,5 +58,7 @@
 /*! @brief manifestation of an SVG 'textArea' entity a collection of other entities
  */
 @interface GHTextArea : GHText
-@property(nonatomic, readonly) NSAttributedString* text;
+@property(nonatomic, readonly) NSAttributedString* __nullable  text;
 @end
+
+NS_ASSUME_NONNULL_END

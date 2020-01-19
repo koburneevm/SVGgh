@@ -26,9 +26,18 @@
 //  Created by Glenn Howes on 10/5/13.
 //
 
-#import "GHImageCache.h"
-#import <UIKit/UIKit.h>
+
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import ImageIO;
+@import UIKit;
+#else
+#import <Foundation/Foundation.h>
 #import <ImageIO/ImageIO.h>
+#import <UIKit/UIKit.h>
+#endif
+
+#import "GHImageCache.h"
 
 NSString * typeOfImage(CGDataProviderRef imgDataProvider, NSString *typeHint) {
     const void * keys[] = { kCGImageSourceShouldCache, kCGImageSourceTypeIdentifierHint };
@@ -512,5 +521,4 @@ static NSMutableDictionary *asyncLoadingBlocksByURL = nil;
 }
 
 @end
-
 

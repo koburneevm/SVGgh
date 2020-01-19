@@ -24,12 +24,32 @@
 //  THE SOFTWARE.
 //
 
+
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import UIKit;
+#else
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "GHControlFactory.h"
+#endif
+
+
 
 #ifndef IBInspectable
 #define IBInspectable
 #endif
+
+#ifndef IB_DESIGNABLE
+#define IB_DESIGNABLE
+#endif
+
+#ifndef DEFINED_COLOR_SCHEME
+#define DEFINED_COLOR_SCHEME
+
+typedef NSUInteger ColorScheme;
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface GHControl : UIControl
 @property(nonatomic, assign) ColorScheme         scheme;
@@ -45,16 +65,16 @@
 @property(nonatomic, assign) IBInspectable CGFloat              artInsetFraction;
 
 // these are all related to how the button draws itself as part of a scheme
-@property(nonatomic, assign) CGGradientRef       faceGradient;
-@property(nonatomic, assign) CGGradientRef       faceGradientPressed;
-@property(nonatomic, assign) CGGradientRef       faceGradientSelected;
-@property(nonatomic, strong) IBInspectable UIColor*            textColor;
-@property(nonatomic, strong) IBInspectable UIColor*            textColorPressed;
-@property(nonatomic, strong) IBInspectable UIColor*            textColorSelected;
+@property(nonatomic, assign) CGGradientRef   __nullable    faceGradient;
+@property(nonatomic, assign) CGGradientRef  __nullable    faceGradientPressed;
+@property(nonatomic, assign) CGGradientRef   __nullable    faceGradientSelected;
+@property(nonatomic, strong) IBInspectable UIColor*          textColor;
+@property(nonatomic, strong) IBInspectable UIColor*        textColorPressed;
+@property(nonatomic, strong) IBInspectable UIColor*        textColorSelected;
 @property(nonatomic, assign) BOOL                   drawsChrome;
 @property(nonatomic, assign) BOOL                   drawsBackground;
-@property(nonatomic, strong) UIColor*            ringColor;
-@property(nonatomic, strong) UIColor*            textShadowColor;
+@property(nonatomic, strong) UIColor*       __nullable      ringColor;
+@property(nonatomic, strong) UIColor*       __nullable       textShadowColor;
 @property(nonatomic, assign) BOOL                useRadialGradient;
 @property (nonatomic, assign) CGFloat             textFontSize;
 @property(nonatomic, assign) BOOL                 useBoldText;
@@ -69,3 +89,5 @@
 extern const CGFloat kRingThickness;
 extern const CGFloat kRoundButtonRadius;
 extern const CGFloat kShadowInset;
+
+NS_ASSUME_NONNULL_END

@@ -26,19 +26,26 @@
 //  Created by Glenn Howes on 2/6/13.
 
 
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import CoreText;
+#else
 #import <Foundation/Foundation.h>
 #import <CoreText/CoreText.h>
+#endif
+
 #import "GHAttributedObject.h"
 #import "GHPathDescription.h"
 #import "GHGlyph.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
 /*! @brief manifestation of an SVG 'tspan' entity a collection of other entities
  */
 @interface GHTextLine : GHAttributedObject<GHPathDescription, GHGlyphMaker>
 /*! @brief init method that takes a a CTLineRef
 */
--(id) initWithAttributes:(NSDictionary *)theAttributes andTextLine:(CTLineRef)lineRef;
+-(instancetype) initWithAttributes:(NSDictionary *)theAttributes andTextLine:(CTLineRef)lineRef;
 
 
 /*! @brief return a tight bounding box for the object's content
@@ -46,3 +53,5 @@
  */
 -(CGRect) getBoundingBoxWithSVGContext:(id<SVGContext>)svgContext;
 @end
+
+NS_ASSUME_NONNULL_END

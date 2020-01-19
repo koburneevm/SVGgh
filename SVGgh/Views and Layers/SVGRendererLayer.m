@@ -27,6 +27,7 @@
 
 #import "SVGRendererLayer.h"
 #import "SVGUtilities.h"
+
 @interface SVGRendererLayer (Private)
 -(CGRect) makeDrawingRect;
 @end
@@ -106,7 +107,7 @@
 
 
 @implementation SVGRendererLayer
--(id)init
+-(instancetype)init
 {
     if(nil != (self = [super init]))
     {
@@ -116,7 +117,7 @@
     }
     return self;
 }
--(id) initWithLayer:(id)layer
+-(instancetype) initWithLayer:(id)layer
 {
     if(nil != (self = [super initWithLayer:layer]))
     {
@@ -128,7 +129,7 @@
     return self;
 }
 
--(id) initWithCoder:(NSCoder *)aDecoder
+-(instancetype) initWithCoder:(NSCoder *)aDecoder
 {
     if(nil != (self = [super initWithCoder:aDecoder]))
     {

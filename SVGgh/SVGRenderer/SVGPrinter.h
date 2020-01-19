@@ -25,7 +25,15 @@
 //  Created by Glenn Howes on 2/4/14.
 //
 
-#import <SVGgh/SVGgh.h>
+
+
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+#else
+#import <Foundation/Foundation.h>
+#endif
+
+@class SVGRenderer;
 
 typedef enum PrintingResults
 {
@@ -35,7 +43,12 @@ typedef enum PrintingResults
     kPrintingErrorResult
 }PrintingResults;
 
-typedef void(^printingCallback_t)(NSError* error, PrintingResults printingResult);
+typedef void(^printingCallback_t)(NSError* __nullable  error, PrintingResults printingResult);
+
+NS_ASSUME_NONNULL_BEGIN
+
 @interface SVGPrinter :NSObject
 +(void) printRenderer:(SVGRenderer*)renderer  withJobName:(NSString*)jobName withCallback:(printingCallback_t)callback;
 @end
+
+NS_ASSUME_NONNULL_END

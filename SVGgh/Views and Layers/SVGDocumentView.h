@@ -26,12 +26,26 @@
 //  Created by Glenn Howes on 1/15/11.
 
 
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import UIKit;
+#else
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#endif
+
 #import "GHRenderable.h"
 
 #ifndef IBInspectable
 #define IBInspectable
 #endif
+
+#ifndef IB_DESIGNABLE
+#define IB_DESIGNABLE
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
+
 /*
  * Note you can instantiate a SVGDocumentView in a storyboard or a XIB by dragging a UIView into your view and giving it a class of SVGDocumentView.
  * You can configure the contents of the view by adding "User Defined Runtime Attributes" in XCode's "Identity Inspector"
@@ -48,23 +62,23 @@
 @class SVGRenderer;
 /*! @brief a view capable of hosting an SVGRenderer or rendering a chunk of SVG
 */
-
+//IB_DESIGNABLE
 @interface SVGDocumentView : UIView
 
 /*! @property artworkPath
 * @brief the text contents of an SVG document can be accessed via 'User Defined RuntimeAttributes'
 */
-@property(nonatomic, strong) IBInspectable NSString*       artworkPath;
+@property(nonatomic, strong) IBInspectable NSString* __nullable        artworkPath;
 
 /*! @property defaultColor
  * @brief the color that 'currentColor' in SVG documents will be set to 
 */
-@property(nonatomic, strong) IBInspectable UIColor* defaultColor;
+@property(nonatomic, strong) IBInspectable UIColor* __nullable  defaultColor;
 
 /*! @property renderer
 * @brief a pre-configured SVGRenderer object which will be called to draw the content
 */
-@property(nonatomic, strong)	SVGRenderer*	renderer;
+@property(nonatomic, strong)	SVGRenderer* __nullable 	renderer;
 
 /*! @property beTransparent
  * @brief ignore the document's 'viewport-fill' property
@@ -75,6 +89,8 @@
 * @param testPoint a point in the coordinate system of the view
 * @return an object hit by the point
 */
--(id<GHRenderable>) findRenderableObject:(CGPoint)testPoint;
+-(nullable id<GHRenderable>) findRenderableObject:(CGPoint)testPoint;
 +(void)makeSureLoaded;
 @end
+
+NS_ASSUME_NONNULL_END

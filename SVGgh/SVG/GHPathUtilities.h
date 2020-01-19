@@ -26,10 +26,17 @@
 //  Created by Glenn Howes on 2/6/13.
 //
 
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import CoreGraphics;
+#else
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
+#endif
 
-typedef void (^pathVisitor_t)(const CGPathElement *element);
+NS_ASSUME_NONNULL_BEGIN
+
+typedef void (^pathVisitor_t)(const CGPathElement * element);
 
 /*! @brief block definition that returns the point on a path and it's direction at that point
  @param point the point being returned
@@ -39,7 +46,7 @@ typedef void (^pathVisitor_t)(const CGPathElement *element);
 typedef void (^pointAndVectorCallback_t)(CGPoint point, CGPoint vector);
 
 
-void CGPathApplyCallbackFunction(void* aVisitor, const CGPathElement *element);
+void CGPathApplyCallbackFunction(void*   aVisitor, const CGPathElement *  element);
 
 @interface GHPathUtilities : NSObject
 
@@ -98,3 +105,5 @@ void CGPathApplyCallbackFunction(void* aVisitor, const CGPathElement *element);
 @end
 
 CGPoint CalculateForward(CGPoint startPoint, CGPoint endPoint);
+
+NS_ASSUME_NONNULL_END

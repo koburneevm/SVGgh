@@ -26,8 +26,15 @@
 //  Created by Glenn Howes on 2/11/13.
 //
 
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import CoreGraphics;
+#else
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 /*! @brief a couple of methods of general use
 */
@@ -43,3 +50,5 @@
 */
 +(CGFloat) extractFractionFromCoordinateString:(NSString*)svgFractionOrPercentage givenDefault:(CGFloat)defaultValue;
 @end
+
+NS_ASSUME_NONNULL_END

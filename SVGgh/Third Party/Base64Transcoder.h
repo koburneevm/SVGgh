@@ -26,11 +26,18 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <UIKit/UIKit.h>
+#if defined(__has_feature) && __has_feature(modules)
+@import UIKit;
+#else
+#import <UIKit/UIKit.h>
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 extern size_t EstimateBas64EncodedDataSize(size_t inDataSize);
 extern size_t EstimateBas64DecodedDataSize(size_t inDataSize);
 
-extern bool Base64EncodeData(const void *inInputData, size_t inInputDataSize, char *outOutputData, size_t *ioOutputDataSize, BOOL wrapped);
-extern bool Base64DecodeData(const void *inInputData, size_t inInputDataSize, void *ioOutputData, size_t *ioOutputDataSize);
+extern bool Base64EncodeData(const void * inInputData, size_t inInputDataSize,  char * outOutputData,  size_t * ioOutputDataSize, BOOL wrapped);
+extern bool Base64DecodeData( const void * inInputData, size_t inInputDataSize,  void * ioOutputData,  size_t * ioOutputDataSize);
 
+NS_ASSUME_NONNULL_END

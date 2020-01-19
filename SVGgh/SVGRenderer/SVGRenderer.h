@@ -25,9 +25,17 @@
 //
 //  Created by Glenn Howes on 1/12/11.
 
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+#else
 #import <Foundation/Foundation.h>
+#endif
+
 #import "SVGParser.h"
 #import "GHRenderable.h"
+#import "SVGContext.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 /*! @brief a class capable of rendering itself into a core graphics context
 */
@@ -51,10 +59,10 @@
 * @param testPoint a point in the coordinate system of this renderer
 * @return an object which implements the GHRenderable protocol
 */
--(id<GHRenderable>) findRenderableObject:(CGPoint)testPoint;
+-(nullable id<GHRenderable>) findRenderableObject:(CGPoint)testPoint;
 
 @end
 
-
+NS_ASSUME_NONNULL_END
 
 

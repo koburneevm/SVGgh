@@ -30,10 +30,20 @@
  of the UIButton that Apple provides.
 ******/
 
+
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import UIKit;
+#else
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#endif
+
 @class GHButton;
 
-enum  {
+NS_ASSUME_NONNULL_BEGIN
+
+enum {
     // do not change the order of these as they are hard coded into storyboards
     kColorSchemeiOS,
     kColorSchemeMachine,
@@ -47,7 +57,12 @@ enum  {
     
     kColorSchemeNone,
 };
+
+#ifndef DEFINED_COLOR_SCHEME
+#define DEFINED_COLOR_SCHEME
+
 typedef NSUInteger ColorScheme;
+#endif
 
 
 /*! @brief a singleton class devoted to storing configurations for themes and returning useful theme objects like gradients and buttons
@@ -77,48 +92,48 @@ typedef NSUInteger ColorScheme;
 /*! @brief set the color of text and the 'currentColor' of embedded SVGs for GHControls
  @param defaultTextColor to use
  */
-+(void) setDefaultTextColor:(UIColor*)defaultTextColor;
-+(void) setDefaultPressedTextColor:(UIColor*)defaultPressedTextColor;
++(void) setDefaultTextColor:(nullable UIColor*)defaultTextColor;
++(void) setDefaultPressedTextColor:(nullable UIColor*)defaultPressedTextColor;
 
-+(UIColor*)textColor;
-+(UIColor*)pressedTextColor;
++(nullable UIColor*)textColor;
++(nullable UIColor*)pressedTextColor;
 
 
 /*! @brief part of what you do to make iOS programs unique is to give controls a color specific to your app
 */
-+(void) setDefaultButtonTint:(UIColor*)buttonTint;
++(void) setDefaultButtonTint:(nullable UIColor*)buttonTint;
 
 /*! @brief default tinting color for GHButtons
 @return aColor appropriate for tinting a button.
 */
-+(UIColor*)buttonTint;
++(nullable UIColor*)buttonTint;
 
 /*! @brief Appropriate color for light backgrounded widgets given the scheme
 @param scheme one of the enumerated list in the typedef ColorScheme
 @return a light color
 */
-+(UIColor*) newLightBackgroundColorForScheme:(ColorScheme)scheme;
++(nullable UIColor*) newLightBackgroundColorForScheme:(ColorScheme)scheme;
 
 /*! @brief a gradient appropriate for coloring a button background
 * @param scheme one of the enumerated list in the typedef ColorScheme
 * @return a CGGradientRef
 * @attention caller responsible for disposal
 */
-+(CGGradientRef) newButtonBackgroundGradientForScheme:(ColorScheme)scheme;
++(nullable CGGradientRef) newButtonBackgroundGradientForScheme:(ColorScheme)scheme;
 
 /*! @brief a gradient appropriate for coloring a pressed button's background
  * @param scheme one of the enumerated list in the typedef ColorScheme
  * @return a CGGradientRef
  * @attention caller responsible for disposal
  */
-+(CGGradientRef) newButtonBackgroundGradientPressedForScheme:(ColorScheme)scheme;
++(nullable CGGradientRef) newButtonBackgroundGradientPressedForScheme:(ColorScheme)scheme;
 
 /*! @brief a gradient appropriate for coloring a selected button's background
  * @param scheme one of the enumerated list in the typedef ColorScheme
  * @return a CGGradientRef
  * @attention caller responsible for disposal
  */
-+(CGGradientRef) newButtonBackgroundGradientSelectedForScheme:(ColorScheme)scheme;
++(nullable CGGradientRef) newButtonBackgroundGradientSelectedForScheme:(ColorScheme)scheme;
 
 /*! @brief Does the given scheme prefer Radial gradients?
  * @param scheme one of the enumerated list in the typedef ColorScheme
@@ -142,13 +157,13 @@ typedef NSUInteger ColorScheme;
  * @param scheme one of the enumerated list in the typedef ColorScheme
  * @return a color (if any) to use as the drop shadow color of text
  */
-+(UIColor*) newTextShadowColorForScheme:(ColorScheme)scheme;
++(nullable UIColor*) newTextShadowColorForScheme:(ColorScheme)scheme;
 
 /*! @brief makes a color appropriate for the ring chrome around a button
  * @param scheme one of the enumerated list in the typedef ColorScheme
  * @return a color (if any) for use in a ring's outline
  */
-+(UIColor*) newRingColorForScheme:(ColorScheme)scheme;
++(nullable UIColor*) newRingColorForScheme:(ColorScheme)scheme;
 
 /*! @brief makes a color appropriate for background of a button when pressed
  * @param scheme one of the enumerated list in the typedef ColorScheme
@@ -177,13 +192,27 @@ typedef NSUInteger ColorScheme;
  */
 +(CGPathRef) newRoundRectPathForRect:(CGRect)aRect withRadius:(CGFloat) radius;
 
+/*! @brief utility routine to find the location of an SVG document relative to a provided bundle
+ * @param an optional bundle containing the artwork
+ * @param theArtworkPath subpath within a bundle does not include the .svg extension which is assumed.
+ */
++(nullable NSURL*) locateArtworkForBundle:(nullable NSBundle*)mayBeNil atSubpath:(NSString*)theArtworkPath;
+
 /*! @brief utility routine to find the location of an SVG document relative to either the main bundle or the bundle in which the object is located
-* @param anObject for instance a GHButton
-* @param theArtworkPath subpath within a bundle does not include the .svg extension which is assumed.
-*/
-+(NSURL*) locateArtworkForObject:(id<NSObject>)anObject atSubpath:(NSString*)theArtworkPath;
+ * @param anObject for instance a GHButton
+ * @param theArtworkPath subpath within a bundle does not include the .svg extension which is assumed.
+ */
++(nullable NSURL*) locateArtworkForObject:(id<NSObject>)anObject atSubpath:(NSString*)theArtworkPath; // for compatibility
+
+/*! @brief utility routine to locate a URL inside your project when using Interface Builder's IB_DESIGNABLE service
+ * @param anObject for instance a GHButton
+ * @param theArtworkPath subpath within a bundle does not include the .svg extension which is assumed.
+ */
++(nullable NSURL*) findInterfaceBuilderArtwork:(NSString*)artworkSubPath;
 
 @end
 
-extern UIColor* UIColorFromSVGColorString (NSString * stringToConvert);
-extern CGPathRef CreatePathFromSVGPathString(NSString* dAttribute, CGAffineTransform transformToApply);
+extern UIColor* __nullable  UIColorFromSVGColorString (NSString *  stringToConvert);
+extern __nullable CGPathRef CreatePathFromSVGPathString(NSString*  dAttribute, CGAffineTransform transformToApply);
+
+NS_ASSUME_NONNULL_END

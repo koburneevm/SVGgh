@@ -51,6 +51,94 @@ UIColor* gDefaultSelectedTextColor = nil;
 }
 
 
++(NSURL*) findSubPath:(NSArray*)pathComponents insideDirectory:(NSURL*)parentDirectory
+{
+    NSURL* result = nil;
+    NSFileManager* fileManager = [NSFileManager new];
+    NSArray *keys = @[NSURLIsDirectoryKey, NSURLNameKey, NSURLIsSymbolicLinkKey];
+    NSDirectoryEnumerator *enumerator = [fileManager
+                                         enumeratorAtURL:parentDirectory
+                                         includingPropertiesForKeys:keys
+                                         options:NSDirectoryEnumerationSkipsPackageDescendants |  NSDirectoryEnumerationSkipsHiddenFiles
+                                         errorHandler:^(NSURL *url, NSError *error) {
+                                             // Handle the error.
+                                             // Return YES if the enumeration should continue after the error.
+                                             return YES;
+                                         }];
+    
+    for (NSURL *url in enumerator) {
+        NSError *error = nil;
+        NSNumber *isDirectory = nil;
+        if (! [url getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:&error]) {
+            // handle error
+        }
+        else
+        {
+            if ([isDirectory boolValue])
+            {
+                NSNumber* isSymbolicLink = nil;
+                [url getResourceValue:&isSymbolicLink forKey:NSURLIsSymbolicLinkKey error:&error];
+                if(error != nil || isSymbolicLink.boolValue)
+                {
+                    [enumerator skipDescendents];
+                }
+            }
+            else
+            {
+                if([url.lastPathComponent isEqualToString:pathComponents.lastObject])
+                {
+                    NSArray* urlComponents = url.pathComponents;
+                    if(urlComponents.count >= pathComponents.count)
+                    {
+                        NSArray* subComponents = [urlComponents subarrayWithRange:NSMakeRange(urlComponents.count-pathComponents.count, pathComponents.count)];
+                        if([subComponents isEqualToArray:pathComponents])
+                        {
+                            result = url;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return result;
+}
+
+
++(NSURL*) findInterfaceBuilderArtwork:(NSString*)artworkSubPath
+{
+    NSURL* result = nil;
+    NSString *projectSourceDir = [[[NSProcessInfo processInfo] environment] objectForKey:@"IB_PROJECT_SOURCE_DIRECTORIES"];
+    if(projectSourceDir.length)
+    {
+        NSURL* directoryURL = [NSURL fileURLWithPath:projectSourceDir];
+        NSString* extendedSVGPath = [artworkSubPath stringByAppendingPathExtension:@"svg"];
+        NSMutableArray* pathComponents = [[extendedSVGPath pathComponents] mutableCopy];
+        
+        result = [self findSubPath:pathComponents insideDirectory:directoryURL];
+    }
+    
+    
+    
+    return result;
+}
+
++(NSURL*) locateArtworkForBundle:(NSBundle*)mayBeNil atSubpath:(NSString*)theArtworkPath
+{
+    NSBundle* bundleToUse = (mayBeNil == nil)? [NSBundle mainBundle] : mayBeNil;
+    NSURL*  result = [bundleToUse URLForResource:theArtworkPath withExtension:@"svg"];
+    
+#if TARGET_INTERFACE_BUILDER
+    if(result == nil)
+    {
+        result = [GHControlFactory findInterfaceBuilderArtwork:theArtworkPath];
+    }
+#endif
+    return result;
+}
+
+
 +(NSURL*) locateArtworkForObject:(id<NSObject>)anObject atSubpath:(NSString*)theArtworkPath
 {
     NSBundle* myBundle = [NSBundle bundleForClass:[anObject class]];
@@ -60,6 +148,14 @@ UIColor* gDefaultSelectedTextColor = nil;
         myBundle = [NSBundle mainBundle];
         result = [myBundle URLForResource:theArtworkPath withExtension:@"svg"];
     }
+    
+#if TARGET_INTERFACE_BUILDER
+    if(result == nil)
+    {
+        result = [GHControlFactory findInterfaceBuilderArtwork:theArtworkPath];
+    }
+#endif
+    
     return result;
 }
 

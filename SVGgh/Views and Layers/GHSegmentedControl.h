@@ -30,12 +30,11 @@
 
 #import "GHControl.h"
 
-#ifndef IBInspectable
-#define IBInspectable
-#endif
-
 @class SVGRenderer;
 
+NS_ASSUME_NONNULL_BEGIN
+
+//IB_DESIGNABLE
 @interface GHSegmentedControl : GHControl
 
 /*! @property momentary
@@ -69,11 +68,11 @@
 - (void)removeSegmentAtIndex:(NSUInteger)segment animated:(BOOL)animated;
 - (void)removeAllSegments;
 
-- (void)setTitle:(NSString *)title forSegmentAtIndex:(NSUInteger)segment;
-- (NSString *)titleForSegmentAtIndex:(NSUInteger)segment;
+- (void)setTitle:(nullable NSString *)title forSegmentAtIndex:(NSUInteger)segment;
+- (nullable NSString *)titleForSegmentAtIndex:(NSUInteger)segment;
 
--(void) setRenderer:(SVGRenderer *)renderer forSegmentedIndex:(NSUInteger)segment;
--(SVGRenderer*) rendererForSegmentedIndex:(NSUInteger)segment;
+-(void) setRenderer:(nullable SVGRenderer *)renderer forSegmentedIndex:(NSUInteger)segment;
+-(nullable SVGRenderer*) rendererForSegmentedIndex:(NSUInteger)segment;
 
 - (void)setWidth:(CGFloat)width forSegmentAtIndex:(NSUInteger)segment;
 - (CGFloat)widthForSegmentAtIndex:(NSUInteger)segment;
@@ -86,3 +85,5 @@
 
 +(void)makeSureLoaded;
 @end
+
+NS_ASSUME_NONNULL_END

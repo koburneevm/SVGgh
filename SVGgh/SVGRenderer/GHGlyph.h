@@ -25,12 +25,19 @@
 //
 //  Created by Glenn Howes on 2/3/13.
 
-
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import CoreText;
+#else
 #import <Foundation/Foundation.h>
 #import <CoreText/CoreText.h>
+#endif
+
 #import "GHAttributedObject.h"
 #import "GHPathDescription.h"
 #import "SVGUtilities.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 /*! @brief A protocol for an object capable of creating GHGlyphs or adding them to a CGContextRef.
 */
@@ -103,11 +110,11 @@
 * @param theWidth pre-calculated width of the glyph
 * @see coreTextAttributesFromSVGStyleAttributes:
 */
--(id) initWithDictionary:(NSDictionary *)theAttributes textAttributes:(NSDictionary*) textAttributes font:(CTFontRef)aFont glyph:(CGGlyph)aGlyph transform:(CGAffineTransform)aTransform offset:(CGPoint)offset runBox:(CGRect)runRect andWidth:(CGFloat)theWidth;
+-(instancetype) initWithDictionary:(NSDictionary *)theAttributes textAttributes:(NSDictionary*) textAttributes font:(CTFontRef)aFont glyph:(CGGlyph)aGlyph transform:(CGAffineTransform)aTransform offset:(CGPoint)offset runBox:(CGRect)runRect andWidth:(CGFloat)theWidth;
 
 /*! @brief not allowing a standard init method
 */
--(instancetype) init __attribute__((unavailable("init not available")));
+-(nullable instancetype) init __attribute__((unavailable("init not available")));
 
 /*! @brief Asks the question for hit testing.
 * @param aPoint a point in the same coordinate system as this glyph
@@ -121,3 +128,5 @@
 */
 -(void) addPathToContext:(CGContextRef)quartzContext  withSVGContext:(id<SVGContext>) svgContext;
 @end
+
+NS_ASSUME_NONNULL_END

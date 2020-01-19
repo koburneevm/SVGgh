@@ -26,9 +26,17 @@
 //  Created by Glenn Howes on 10/5/13.
 
 
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import CoreGraphics;
+@import UIKit;
+#else
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <UIKit/UIKit.h>
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 /*! @brief  If you want to be notified when an image is added to the cache use NSNotificationCenter to register this string
  @memberof GHImageCache
@@ -51,7 +59,7 @@ extern const CGColorRenderingIntent	kColoringRenderingIntent;
 * @param anImage resulting image
 * @param location where image was located
 */
-typedef void (^handleRetrievedImage_t)(UIImage* anImage, NSURL* location);
+typedef void (^handleRetrievedImage_t)(UIImage* __nullable  anImage, NSURL* __nullable  location);
 
 /*! @brief  definition of a block callback after a list of faces (and locations) were extracted from a parent image
  * @param error if failed this will be non-nil
@@ -59,7 +67,7 @@ typedef void (^handleRetrievedImage_t)(UIImage* anImage, NSURL* location);
  * @param locations where images are now located
  
  */
-typedef void (^handleExtractedFaces_t)(NSError* error, NSArray* images, NSArray* locations);
+typedef void (^handleExtractedFaces_t)( NSError* __nullable  error,  NSArray* __nullable  images, NSArray* __nullable  locations);
 
 /*! @brief  instance-less class which caches images
 * @note uses NSCache to handle low memory warnings.
@@ -86,7 +94,7 @@ typedef void (^handleExtractedFaces_t)(NSError* error, NSArray* images, NSArray*
 * @return retrieved UIImage
  
 */
-+(UIImage*) uncacheImageForName:(NSString*)uniqueName;
++(nullable UIImage*) uncacheImageForName:(NSString*)uniqueName;
 
 /*! @brief  if you have an image in an NSData this will create an image, store it and return it
 * @param imageData data in some standard format like PNG or JPEG
@@ -100,7 +108,7 @@ typedef void (^handleExtractedFaces_t)(NSError* error, NSArray* images, NSArray*
 * @param anImage to be stored, maybe be nil
 * @param aFileURL to allow reload, cannot be nil
 */
-+(void) setCachedImage:(UIImage*)anImage forURL:(NSURL*) aFileURL;
++(void) setCachedImage:(nullable UIImage*)anImage forURL:(NSURL*) aFileURL;
 
 /*! @brief  makes a filename that is unigue (via a GUID) with a given extension
 * @param extension extension like "jpg"
@@ -127,7 +135,26 @@ typedef void (^handleExtractedFaces_t)(NSError* error, NSArray* images, NSArray*
 */
 +(void) extractFaceImageFromPickedImage:(UIImage*) anImage withCallback:(handleExtractedFaces_t)callback;
 
+
+/*! @brief  If you want to be notified when an image is added to the cache use NSNotificationCenter to register this string
+ @memberof GHImageCache
+ */
+extern NSString*  const kImageAddedToCacheNotificationName; // does not include faces being added via the picker.
+    extern NSString*  const kImageAddedKey;
+    extern NSString*  const kImageURLAddedKey;
+
+/*! @brief  If you want to be notified when faces (plural) is added to the cache use NSNotificationCenter to register this string
+  @memberof GHImageCache
+ */
+extern  NSString*  const kFacesAddedToCacheNotificationName;
+    extern  NSString*  const kFacesAddedKey;
+    extern  NSString*  const kFacesURLsAddedKey;
+
+
+extern const CGColorRenderingIntent	kColoringRenderingIntent;
+
+NS_ASSUME_NONNULL_END
+
 + (void)purge;
 
 @end
-

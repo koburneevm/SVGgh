@@ -39,29 +39,30 @@ NSData* DecodeBase64FromStringToData(NSString* decodeString)
     
     size_t estSize = EstimateBas64DecodedDataSize([tmpData length]);
     uint8_t* outBuffer = calloc(estSize, sizeof(uint8_t));
-    
-    size_t outBufferLength = estSize;
-    if (Base64DecodeData([tmpData bytes], [tmpData length], outBuffer, &outBufferLength))
+    if(outBuffer != nil)
     {
-        decodeBuffer = [NSData dataWithBytesNoCopy:outBuffer length:outBufferLength freeWhenDone:YES];
+        size_t outBufferLength = estSize;
+        if (Base64DecodeData([tmpData bytes], [tmpData length], outBuffer, &outBufferLength))
+        {
+            decodeBuffer = [NSData dataWithBytesNoCopy:outBuffer length:outBufferLength freeWhenDone:YES];
+        }
+        else
+        {
+            free(outBuffer);
+        }
     }
-    else
-    {
-        free(outBuffer);
-    }
-    
     return decodeBuffer;
 }
 
 @implementation NSData (Base64Addons)
 
-+(id)decodeBase64ForString:(NSString *)decodeString
++(instancetype)decodeBase64ForString:(NSString *)decodeString
 {
     NSData* result = DecodeBase64FromStringToData(decodeString);
     return result;
 }
 
-+(id)decodeWebSafeBase64ForString:(NSString *)decodeString
++(instancetype)decodeWebSafeBase64ForString:(NSString *)decodeString
 {
     return [NSData decodeBase64ForString:[[decodeString stringByReplacingOccurrencesOfString:@"-" withString:@"+"] stringByReplacingOccurrencesOfString:@"_" withString:@"/"]];
 }
@@ -73,15 +74,16 @@ NSData* DecodeBase64FromStringToData(NSString* decodeString)
     // Make sure this is nul-terminated.
     size_t outBufferEstLength = EstimateBas64EncodedDataSize([self length]) + 1;
     char *outBuffer = calloc(outBufferEstLength, sizeof(char));
-    
-    size_t outBufferLength = outBufferEstLength;
-    if (Base64EncodeData([self bytes], [self length], outBuffer, &outBufferLength, FALSE))
+    if(outBuffer != nil)
     {
-        encodedString = [NSString stringWithCString:outBuffer encoding:NSASCIIStringEncoding];
+        size_t outBufferLength = outBufferEstLength;
+        if (Base64EncodeData([self bytes], [self length], outBuffer, &outBufferLength, FALSE))
+        {
+            encodedString = [NSString stringWithCString:outBuffer encoding:NSASCIIStringEncoding];
+        }
+        
+        free(outBuffer);
     }
-    
-    free(outBuffer);
-    
     return encodedString;
 }
                                     
@@ -97,15 +99,16 @@ NSData* DecodeBase64FromStringToData(NSString* decodeString)
     // Make sure this is nul-terminated.
     size_t outBufferEstLength = EstimateBas64EncodedDataSize([self length]) + 1;
     char *outBuffer = calloc(outBufferEstLength, sizeof(char));
-    
-    size_t outBufferLength = outBufferEstLength;
-    if (Base64EncodeData([self bytes], [self length], outBuffer, &outBufferLength, TRUE))
+    if(outBuffer != nil)
     {
-        encodedString = [NSString stringWithCString:outBuffer encoding:NSASCIIStringEncoding];
+        size_t outBufferLength = outBufferEstLength;
+        if (Base64EncodeData([self bytes], [self length], outBuffer, &outBufferLength, TRUE))
+        {
+            encodedString = [NSString stringWithCString:outBuffer encoding:NSASCIIStringEncoding];
+        }
+        
+        free(outBuffer);
     }
-    
-    free(outBuffer);
-    
     return encodedString;
 }
                                     

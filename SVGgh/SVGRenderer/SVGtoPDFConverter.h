@@ -24,9 +24,21 @@
 //  THE SOFTWARE.
 //  Created by Glenn Howes on 2/4/14.
 //
-#import <SVGgh/SVGgh.h>
+#if defined(__has_feature) && __has_feature(modules)
+@import Foundation;
+@import CoreGraphics;
+#else
+#import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+#endif
 
-typedef void(^renderPDFCallback_t)(NSData* pdfData);
+@class SVGRenderer;
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef void(^renderPDFCallback_t)(NSData* __nullable  pdfData);
+
+
 
 @interface SVGtoPDFConverter : NSObject
 /*! @brief call to create a PDF, does so on another queue
@@ -42,4 +54,6 @@ typedef void(^renderPDFCallback_t)(NSData* pdfData);
 * \param theData an allocated but empty block of data which will be filled with the PDF
 * \return a Core Graphics context. Caller responsible for disposal.
 */
-CGContextRef	CreatePDFContext(const CGRect mediaRect, CFMutableDataRef theData);
+__nullable CGContextRef	CreatePDFContext(const CGRect mediaRect, CFMutableDataRef theData);
+
+NS_ASSUME_NONNULL_END

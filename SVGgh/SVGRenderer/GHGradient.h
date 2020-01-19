@@ -26,6 +26,8 @@
 
 #import "SVGAttributedObject.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /*! @brief An abstract implementation of a GHFill that will add gradients to a properly setup Core Graphics Context
 */
 @interface GHGradient : GHFill
@@ -46,3 +48,5 @@
 */
 @interface GHRadialGradient : GHGradient
 @end
+
+NS_ASSUME_NONNULL_END
