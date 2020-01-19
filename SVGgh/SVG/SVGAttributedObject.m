@@ -599,7 +599,7 @@
 @end
 
 @implementation GHShape
-@synthesize	isClosed, strokeColor=_strokeColor,  quartzPath=_quartzPath;
+@synthesize	isClosed, isFillable, strokeColor=_strokeColor,  quartzPath=_quartzPath;
 -(CGPathRef) quartzPath
 {
     if(_quartzPath == 0)
@@ -647,11 +647,17 @@
     return result;
 }
 
+-(BOOL) isFillable
+{
+    BOOL result = NO;
+    return result;
+}
+
 -(BOOL)	hitTest:(CGPoint) testPoint
 {
     BOOL	result = NO;
     
-    if(self.isClosed)
+    if(self.isFillable)
     {
         CGPathRef	myPath  = self.quartzPath;
         
@@ -741,14 +747,16 @@
     }
     
     BOOL	fillIt = (fillOpacity > 0.0 && ![fillString isEqualToString:@"none"]);
-    if(fillIt && self.isClosed)
+    
+    if(fillIt && self.isFillable)
     {
     }
     else if(fillIt)
     {
         fillIt = fillString.length > 0;
     }
-    
+
+
     BOOL strokeIt = (strokeOpacity > 0.0 && (strokeColorString != nil && ![strokeColorString isEqualToString:@"none"]));
     
     GHGradient* gradientToFill = nil;
@@ -949,6 +957,13 @@
     return result;
 }
 
+
+-(BOOL) isFillable
+{
+    BOOL result = NO;
+    return result;
+}
+
 -(CGPathRef) newQuartzPath
 {
     CGMutablePathRef	mutableResult = CGPathCreateMutable();
@@ -973,6 +988,13 @@
 -(BOOL) isClosed
 {
     BOOL	result = NO;
+    return result;
+}
+
+
+-(BOOL) isFillable
+{
+    BOOL result = YES;
     return result;
 }
 
@@ -1005,6 +1027,13 @@
     return result;
 }
 
+
+-(BOOL) isFillable
+{
+    BOOL result = YES;
+    return result;
+}
+
 -(NSString*) renderingPath // Path will take our points and treat them like a M operation followed by a series of implied Line tos
 {		// followed by a close
     NSString* result = [self.attributes objectForKey:@"points"];
@@ -1031,6 +1060,13 @@
 -(BOOL) isClosed
 {
     BOOL	result = YES;
+    return result;
+}
+
+
+-(BOOL) isFillable
+{
+    BOOL result = YES;
     return result;
 }
 
@@ -1082,6 +1118,13 @@
 -(BOOL) isClosed
 {
     BOOL	result = YES;
+    return result;
+}
+
+
+-(BOOL) isFillable
+{
+    BOOL result = YES;
     return result;
 }
 
@@ -1190,6 +1233,13 @@
 -(BOOL) isClosed
 {
     BOOL	result = [[self.renderingPath stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] hasSuffix:@"z"];
+    return result;
+}
+
+
+-(BOOL) isFillable
+{
+    BOOL result = YES;
     return result;
 }
 

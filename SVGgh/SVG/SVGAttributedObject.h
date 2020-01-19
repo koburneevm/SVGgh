@@ -141,6 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic, readonly)  NSString* __nullable 		strokeColor;
 @property (nonatomic, readonly)         CGFloat         strokeWidth;
 @property (nonatomic, readonly)         BOOL			isClosed;
+@property (nonatomic, readonly)         BOOL            isFillable;
 @property (nonatomic, readonly)          CGPathRef	__nullable	quartzPath;
 @end
 
