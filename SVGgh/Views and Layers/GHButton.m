@@ -30,8 +30,8 @@
 #import "GHButton.h"
 #import "GHControlFactory.h"
 #import "SVGRenderer.h"
+#import "SVGghLoader.h"
 
-#import "SVGgh.h"
 
 @interface KeyboardPressedPopup : UIView
 @property(nonatomic, weak) GHButton* parent;
@@ -110,6 +110,17 @@
     {
     }
     return self;
+}
+
+
+-(void) setEnabled:(BOOL)enabled
+{
+    BOOL isChange = enabled != self.isEnabled;
+    [super setEnabled:enabled];
+    if(isChange)
+    {
+        [self syncTextColor];
+    }
 }
 
 #if TARGET_OS_TV
@@ -267,6 +278,16 @@
     }
 }
 
+-(void) awakeFromNib
+{
+    [super awakeFromNib];
+    if(self.textLabel.text)
+    {
+        [self syncFontSize];
+        [self syncTextColor];
+        [self setNeedsLayout];
+    }
+}
 
 -(NSString*)title
 {
@@ -284,11 +305,34 @@
     }
 }
 
+-(UIFont*)labelFont
+{
+    CGFloat textSize = self.textFontSize;
+    if(textSize == 0.0) textSize = 16;
+    
+    if(self.hasActiveArtwork)
+    {
+        textSize = floor(textSize*0.75);
+    }
+    return self.useBoldText?[UIFont boldSystemFontOfSize:self.textFontSize]:[UIFont systemFontOfSize:textSize];
+}
+
+-(void) syncFontSize
+{
+    if(self.textLabel.text.length)
+    {
+        self.textLabel.font = self.labelFont;
+    }
+}
 
 -(void) syncTextColor
 {
     BOOL    inNormalMode = !(self.isSelected || self.isHighlighted);
     UIColor*        textColorToUse = inNormalMode?self.textColor:self.textColorPressed;
+    if(!self.isEnabled)
+    {
+        textColorToUse = self.textColorDisabled;
+    }
     self.textLabel.textColor = textColorToUse;
     self.textLabel.shadowOffset = CGSizeMake(0, 1);
     self.textLabel.shadowColor = self.textShadowColor;
@@ -387,12 +431,12 @@
     {// we use a regular UILabel to handle text (much simpler that way)
         UILabel* theTextLabel = [[UILabel alloc] initWithFrame:CGRectZero];
         self.textLabel = theTextLabel;
-        self.textLabel.font = self.useBoldText?[UIFont boldSystemFontOfSize:self.textFontSize]:[UIFont systemFontOfSize:self.textFontSize];
         self.textLabel.backgroundColor = [UIColor clearColor];
         [self addSubview:theTextLabel];
         [self syncTextColor];
     }
     self.textLabel.text = localizedTitle;
+    [self syncFontSize];
     [self setNeedsLayout];
 }
 
@@ -551,7 +595,7 @@
         
         if(!self.enabled)
         {
-            currentColor = [UIColor lightGrayColor];
+            currentColor = self.textColorDisabled;
         }
         
         renderer.currentColor = currentColor;
@@ -565,7 +609,19 @@
             {
                 inset += 5;
             }
-            interiorRect = (self.useRadialGradient || !self.drawsChrome)?bounds:CGRectInset(bounds, inset, inset);
+            if(self.useRadialGradient || !self.drawsChrome)
+            {
+                interiorRect = bounds;
+            }
+            else if(self.textLabel.text)
+            {
+                interiorRect = CGRectMake(bounds.origin.x+inset, bounds.origin.y+inset, bounds.size.width-2*inset, bounds.size.height-inset);
+            }
+            else
+            {
+                interiorRect = CGRectInset(bounds, inset, inset);
+            }
+            
         }
         else
         {
@@ -604,9 +660,31 @@
     }
 }
 
+
++(NSString*) placeHolderSVG
+{
+    NSString* result = @"<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg viewport-fill=\"none\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"  xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0, 0, 512, 512\"><rect width=\"510\" fill=\"none\" height=\"510\" stroke=\"#66CDAA\" x=\"1\" y=\"1\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\" /><path  d=\"M 5 50 27.5 11.03 72.5 11.03 95 50 72.5 88.97 27.5 88.97 5 50z\" transform=\"matrix(2 1.18309 -1.18309 2.05521 86.4456 -29.0634)\" fill=\"#66CDAA\"/><path d=\"M 5 5 H 95 V 95 H 5 V 5 Z\" transform=\"matrix(2 0 0 2 294 286)\" fill=\"#66CDAA\" /><path d=\"M 50 5 L 95 95 L 5 95 50 5Z\" transform=\"matrix(2 0 0 2 26 288)\" fill=\"currentColor\" /><path d=\"M50 95A45 45 0 1 1 50.1 95Z M50 85 A35 35 0 1 0 49 85Z\" transform=\"matrix(2 0.5 -0.5 2 313 4)\" fill=\"currentColor\"/></svg>";
+    
+    return result;
+}
+
+- (void)prepareForInterfaceBuilder // show a placeholder in Interface Builder
+{
+    [super prepareForInterfaceBuilder];
+    [self syncFontSize];
+    [self syncTextColor];
+    [self setNeedsLayout];
+}
+
 -(void)drawArtworkAtPath:(NSString*)theArtworkPath intoContext:(CGContextRef)quartzContext bounds:(CGRect)bounds
 {
+#if TARGET_INTERFACE_BUILDER
+    SVGRenderer* renderer = [[SVGRenderer alloc] initWithString:[GHButton placeHolderSVG]];
+    
+#else
     SVGRenderer* renderer = [[SVGghLoaderManager loader] loadRenderForSVGIdentifier:theArtworkPath inBundle:nil];
+#endif
+
     
     if(renderer != nil)
     {
@@ -635,26 +713,34 @@
     }
 }
 
--(void) drawRect:(CGRect)rect withContext:(CGContextRef)quartzContext
+-(void) drawRect:(CGRect)bounds withContext:(CGContextRef)quartzContext
 {
     if(self.drawsBackground)
     {
         if(self.drawsChrome)
         {
-            [self drawChromeBackgroundIntoContext:quartzContext bounds:rect];
+            [self drawChromeBackgroundIntoContext:quartzContext bounds:bounds];
         }
         else
         {
-            [self drawFlatBackgroundIntoContext:quartzContext  bounds:rect];
+            [self drawFlatBackgroundIntoContext:quartzContext  bounds:bounds];
         }
     }
+    
+    CGRect artworkRect = bounds;
+    
+    if(self.textLabel.text.length)
+    {
+        artworkRect.size.height = self.textLabel.frame.origin.y;
+    }
+    
     if(self.selected && self.selectedArtworkPath.length)
     {
-        [self drawArtworkAtPath:self.selectedArtworkPath intoContext:quartzContext  bounds:rect];
+        [self drawArtworkAtPath:self.selectedArtworkPath intoContext:quartzContext  bounds:artworkRect];
     }
     else if(self.artworkPath.length)
     {
-        [self drawArtworkAtPath:self.artworkPath intoContext:quartzContext bounds:rect];
+        [self drawArtworkAtPath:self.artworkPath intoContext:quartzContext bounds:artworkRect];
     }
 
 }
@@ -663,7 +749,6 @@
 {
     CGContextRef quartzContext = UIGraphicsGetCurrentContext();
     [self drawRect:self.bounds withContext:quartzContext];
-
 }
 
 -(void) setArtworkPath:(NSString *)artworkPath
@@ -673,19 +758,64 @@
     {
         [self setContentMode:UIViewContentModeRedraw];
     }
+    [self syncFontSize];
+    if(self.textLabel.text.length)
+    {
+        [self setNeedsLayout];
+    }
+}
+
+-(BOOL) hasActiveArtwork
+{
+    BOOL result = ((self.selected && self.selectedArtworkPath.length) || (self.isHighlighted && self.pressedArtworkPath.length) || (self.artworkPath.length));
+    return result;
 }
 
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    CGRect myRectInsideRadius = CGRectInset(self.bounds, kRoundButtonRadius, kRoundButtonRadius);
     if(self.textLabel != nil)
     {
-        CGRect neededRect = [self.textLabel textRectForBounds:myRectInsideRadius limitedToNumberOfLines:1];
-        neededRect.origin = CGPointMake(kRoundButtonRadius+(myRectInsideRadius.size.width-neededRect.size.width)/2,
-                                        kRoundButtonRadius+(myRectInsideRadius.size.height-neededRect.size.height)/2);
+        CGFloat inset = (self.drawsChrome)?kRoundButtonRadius:0.0;
+        CGRect myRectInsideRadius = CGRectInset(self.bounds, inset, inset);
+        NSString* text = self.textLabel.text;
+        UIFont* font = self.textLabel.font;
+        NSDictionary* attributes = @{NSFontAttributeName:font};
+        CGRect neededRect = [text boundingRectWithSize:self.bounds.size options:0 attributes:attributes context:nil];
+        if(self.hasActiveArtwork)
+        {
+            neededRect.origin = CGPointMake(inset+(myRectInsideRadius.size.width-neededRect.size.width)/2,
+                                            (myRectInsideRadius.size.height-neededRect.size.height)+inset);
+        }
+        else
+        {
+            neededRect.origin = CGPointMake(inset+(myRectInsideRadius.size.width-neededRect.size.width)/2,
+                                        inset+(myRectInsideRadius.size.height-neededRect.size.height)/2);
+        }
         self.textLabel.frame = neededRect;
     }
+}
+
+-(CGSize) intrinsicContentSize
+{
+    CGSize result = [super intrinsicContentSize];
+    
+    if(self.textLabel.text.length)
+    {
+        CGFloat inset = (self.drawsChrome)?kRoundButtonRadius:0.0;
+        UIFont* font = self.textLabel.font;
+        NSDictionary* attributes = @{NSFontAttributeName:font};
+        CGSize neededSize = [self.textLabel.text sizeWithAttributes:attributes];
+        
+        if(self.artworkPath.length)
+        {
+            neededSize.height *= 3.0;
+        }
+        result.height = ceil(fmax(neededSize.height, result.height) + inset*2.0);
+        result.width = ceil(fmax(neededSize.width, result.width) + inset*2.0);
+    }
+    
+    return result;
 }
 
 @end
