@@ -102,7 +102,7 @@ CGAffineTransform SVGTransformToCGAffineTransformSlow( NSString*  transformAttri
 * \param pixelsHigh height of the bitmap
 * \return a Core Graphics context to draw into caller responsible for deallocation
 */
-__nullable CGContextRef BitmapContextCreate (size_t pixelsWide, size_t pixelsHigh);
+__nullable CGContextRef BitmapContextCreate (size_t pixelsWide, size_t pixelsHigh) CF_RETURNS_RETAINED;
 
 /*! \brief some SVG attribues are of the form of a list, such as the fallback list of fonts as in 'Times, Georgia, san-serif'
 * \param svgAttributes dictionary to search for the key
@@ -255,6 +255,13 @@ extern const CGColorRenderingIntent	kColoringRenderingIntent;
 * @see CGContextSetMiterLimit
 */
 +(void) setupMiterLimitForQuartzContext:(CGContextRef)quartzContext withSVGMiterLimitString:(nullable NSString*)miterLimitString;
+
+/*! @brief given a 'mix-blend-mode' SVG attribute setup the context for drawing with that blend mode
+* @param quartzContext a Core Graphics context
+* @param blendModeString a valid svg mix-blend-mode value string (eg. 'normal', 'overlay')
+* @see CGContextSetBlendMode
+*/
++(void)setupBlendModeForQuartzContext:(CGContextRef)quartzContext withBlendModeString:(nullable NSString*)blendModeString;
 
 /*! @brief setup line drawing to use a given dash pattern and phase into that dash pattern
 * @param quartzContext a Core Graphics context
