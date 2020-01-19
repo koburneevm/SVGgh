@@ -147,7 +147,7 @@ int ParameterCountForOperator(unichar anOperator)
 @property(nonatomic, assign) SVGPathValidationError errorCode;
 @property(nonatomic, assign) unsigned char  operatorAtError;
 @property(nonatomic, assign) BOOL   errorInLastOperation;
-@property(nonatomic, strong) NSString* __nullable  unexpectedCharacters;
+@property(nonatomic, copy) NSString* __nullable  unexpectedCharacters;
 
 @end
 
@@ -1525,7 +1525,9 @@ int ParameterCountForOperator(unichar anOperator)
 				case 'Z':
 				case 'z': // close path
 				{
+                    CGPoint lastPoint = CGPathGetCurrentPoint(mutableResult); // Workaround for bug in iOS 12 beta 3
 					CGPathCloseSubpath(mutableResult);
+                    CGPathMoveToPoint(mutableResult, NULL, lastPoint.x, lastPoint.y); // Workaround for bug in iOS 12 beta 3
 					lastCubicControlX = CGFLOAT_MAX;
 					lastQuadraticControlX = CGFLOAT_MAX;
 					

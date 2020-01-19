@@ -28,7 +28,6 @@
 //
 
 #import "SVGUtilities.h"
-#import "NSData+Base64Additions.h"
 #import "SVGAttributedObject.h"
 #import "GHImageCache.h"
 #import "SVGUtilities.h"
@@ -88,7 +87,7 @@ CGFloat CalculateVectorAngle(CGPoint	vector1, CGPoint vector2)
 	return result;
 }
 
-NSDictionary* DefaultSVGDrawingAttributes()
+NSDictionary* DefaultSVGDrawingAttributes(void)
 {
     static NSDictionary* sResult = nil;
     static dispatch_once_t  done;
@@ -105,7 +104,7 @@ NSDictionary* DefaultSVGDrawingAttributes()
     return sResult;
 }
 
-NSSet* StandardPathAttributes()
+NSSet* StandardPathAttributes(void)
 {
     static NSSet* sResult = nil;
     static dispatch_once_t  done;
@@ -1700,7 +1699,7 @@ CGFloat	GetNextCoordinate(const char* buffer, NSUInteger* indexPtr, NSUInteger b
             stringBuffer[stringBufferIndex++] = theChar;
             numberSeen = (theChar >= '0' && theChar <= '9');
         }
-        BOOL periodSeen = NO, expSeen = NO;
+        BOOL periodSeen = theChar == '.', expSeen = NO;
         while(srcBufferIndex < bufferLength)
         {
             theChar = buffer[srcBufferIndex];
@@ -2203,7 +2202,7 @@ NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
 			{
 				CGImageRef imageRef = 0;
 				NSString*	dataString = [metaDataString substringFromIndex:rangeOfComma.location+1];
-				NSData*	decodedData = DecodeBase64FromStringToData(dataString);
+				NSData*    decodedData = [[NSData alloc] initWithBase64EncodedString:dataString options:NSDataBase64DecodingIgnoreUnknownCharacters];
 				CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef) decodedData);
 				if(provider != 0)
 				{

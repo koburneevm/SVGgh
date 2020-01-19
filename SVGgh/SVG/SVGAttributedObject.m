@@ -1969,7 +1969,7 @@
 @end
 
 @interface GHStyle()
-@property(nonatomic, strong) NSDictionary<NSString*, GHCSSStyle*>* classes;
+@property(nonatomic, copy) NSDictionary<NSString*, GHCSSStyle*>* classes;
 
 @end
 

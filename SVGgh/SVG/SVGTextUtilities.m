@@ -46,7 +46,6 @@ const double kStandardSVGFontScale = 1.2;
 +(double) addFontSizeFromSVGStyleAttributes:(NSDictionary*)svgStyle toCoreTextAttributes:(NSMutableDictionary*)outAttributes;
 +(void) addFontFamilyFromSVGStyleAttributes:(NSDictionary*)svgStyle toCoreTextAttributes:(NSMutableDictionary*)outAttributes;
 +(void) addFontStyleFromSVGStyleAttributes:(NSDictionary*)svgStyle toCoreTextAttributes:(NSMutableDictionary*)outAttributes;
-+(void) addFontVariantFromSVGStyleAttributes:(NSDictionary*)svgStyle toCoreTextAttributes:(NSMutableDictionary*)outAttributes;
 +(void) addfontWeightFromSVGStyleAttributes:(NSDictionary*)svgStyle toCoreTextAttributes:(NSMutableDictionary*)outAttributes;
 +(void) addFontWidthFromSVGStyleAttributes:(NSDictionary*)svgStyle toCoreTextAttributes:(NSMutableDictionary*)outAttributes;
 +(void) determinePointSizeFromCoreTextAttributes:(NSMutableDictionary*)outAttributes givenPixelSize:(double)pixelSizeToUse;
@@ -171,17 +170,19 @@ const double kStandardSVGFontScale = 1.2;
 		NSDictionary* coreTextAttributes = [SVGTextUtilities coreTextAttributesFromSVGStyleAttributes:svgStyleAttributes];
 		if([coreTextAttributes count])
 		{
-			CTFontDescriptorRef unMatchedResult = CTFontDescriptorCreateWithAttributes((__bridge CFDictionaryRef)coreTextAttributes);
+			CTFontDescriptorRef unmatchedResult = CTFontDescriptorCreateWithAttributes((__bridge CFDictionaryRef)coreTextAttributes);
+            
+            
             NSMutableSet* specifiedAttributes = [NSMutableSet setWithArray:[coreTextAttributes allKeys]];
             
 
             
-            CTFontDescriptorRef missSizedResult = CTFontDescriptorCreateMatchingFontDescriptor (unMatchedResult,
+            CTFontDescriptorRef missSizedResult = CTFontDescriptorCreateMatchingFontDescriptor (unmatchedResult,
                                                                                                 (__bridge CFSetRef)specifiedAttributes
                                                                                                 );
             if(missSizedResult != 0)
             {
-                CFRelease(unMatchedResult);
+                CFRelease(unmatchedResult);
                 
                 result = CTFontDescriptorCreateCopyWithAttributes (missSizedResult,
                                                                    (__bridge CFDictionaryRef)coreTextAttributes
@@ -197,8 +198,13 @@ const double kStandardSVGFontScale = 1.2;
             }
             else
             {
-                result = unMatchedResult;
+                result = unmatchedResult;
             }
+            
+            CTFontDescriptorRef entryResult = result;
+            result = [SVGTextUtilities coreTextDescriptor: entryResult addingAttributes: SVGattributes];
+            
+            CFRelease(entryResult);
             
             // work around becuase kCTFontSymbolicTrait wasn't being honored by matching
             NSDictionary* fontTraitsDictionary = [coreTextAttributes objectForKey:(NSString*)kCTFontTraitsAttribute];
@@ -261,6 +267,25 @@ const double kStandardSVGFontScale = 1.2;
     return result;
 }
 
++(CTFontDescriptorRef) coreTextDescriptor:(CTFontDescriptorRef) baseFontDescriptor addingAttributes:(NSDictionary*) svgStyle CF_RETURNS_RETAINED
+{
+    CTFontDescriptorRef result = baseFontDescriptor;
+    CFRetain(baseFontDescriptor);
+    
+    NSArray* listOfFontVariants = ArrayForSVGAttribute(svgStyle, @"font-variant");
+    for(id aFontVariant in listOfFontVariants)
+    {
+        if([aFontVariant isEqualToString:@"small-caps"])
+        {
+            CTFontDescriptorRef smallCapResult = CTFontDescriptorCreateCopyWithFeature(result, (__bridge CFNumberRef)@3, (__bridge CFNumberRef)@3);
+            CFRelease(result);
+            result = smallCapResult;
+        }
+    }
+    
+    return result;
+}
+
 +(NSDictionary*) coreTextAttributesFromSVGStyleAttributes:(NSDictionary*)svgStyle
 {
 	NSMutableDictionary* mutableResult = [NSMutableDictionary dictionary];
@@ -269,7 +294,6 @@ const double kStandardSVGFontScale = 1.2;
 		double		pixelSizeToUse = [SVGTextUtilities addFontSizeFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities addFontFamilyFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities addFontStyleFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
-		[SVGTextUtilities addFontVariantFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities addfontWeightFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities addFontWidthFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities limitCharacterSetFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
@@ -316,6 +340,10 @@ const double kStandardSVGFontScale = 1.2;
 					lowString = [subRange objectAtIndex:0];
 					highString = [subRange objectAtIndex:1];
 				}
+                else
+                {
+                    continue;
+                }
 				NSScanner* lowScanner = [NSScanner scannerWithString:lowString];
 				NSScanner* highScanner = [NSScanner  scannerWithString:highString];
 				long long	lowValue, highValue;
@@ -525,22 +553,6 @@ const double kStandardSVGFontScale = 1.2;
 	}
 }
 
-+(void) addFontVariantFromSVGStyleAttributes:(NSDictionary*)svgStyle toCoreTextAttributes:(NSMutableDictionary*)outAttributes
-{
-	NSArray* listOfFontVariants= ArrayForSVGAttribute(svgStyle, @"font-variant");
-	for(id aFontVariant in listOfFontVariants)
-	{
-		if([aFontVariant isEqualToString:@"normal"])
-		{
-			[outAttributes removeObjectForKey:(NSString*)kCTFontFeatureSelectorIdentifierKey];
-		}
-		else if([aFontVariant isEqualToString:@"small-caps"])
-		{
-			[outAttributes setObject:[NSNumber numberWithInt:3] forKey:(NSString*)kCTFontFeatureSelectorIdentifierKey];
-		}
-	}
-}
-
 +(void) determinePointSizeFromCoreTextAttributes:(NSMutableDictionary*)outAttributes givenPixelSize:(double)pixelSizeToUse
 {
 	CTFontDescriptorRef	tempFontDescriptor = CTFontDescriptorCreateWithAttributes((__bridge CFDictionaryRef)outAttributes);
@@ -712,7 +724,6 @@ const double kStandardSVGFontScale = 1.2;
 		double		pixelSizeToUse = [SVGTextUtilities addFontSizeFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities addFontFamilyFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities addFontStyleFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
-		[SVGTextUtilities addFontVariantFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities addfontWeightFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities addFontWidthFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];
 		[SVGTextUtilities limitCharacterSetFromSVGStyleAttributes:svgStyle toCoreTextAttributes:mutableResult];

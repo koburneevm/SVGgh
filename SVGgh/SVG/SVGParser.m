@@ -35,9 +35,9 @@
 #import "NSData+IDZGunzip.h"
 
 @interface SVGParser ()
-@property(nonatomic, strong) NSError* __nullable 	parserError;
 @property(nonatomic, strong) NSMutableDictionary*	__nullable mutableRoot;
-@property(nonatomic, strong) NSDictionary*          __nullable root;
+@property(nonatomic, copy) NSError* __nullable 	parserError;
+@property(nonatomic, copy) NSDictionary*          __nullable root;
 @property(nonatomic, assign) BOOL					insideSVG;
 @property(nonatomic, strong) NSMutableArray*		__nullable groupStack;
 @end
@@ -305,7 +305,11 @@
 -(NSURL*)   absoluteURL:(NSString*)absolutePath
 {// keeping things within the ios sandbox
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+    if(paths.count == 0)
+    {
+        return NULL;
+    }
+    NSString *basePath = [paths objectAtIndex:0];
     basePath = [basePath stringByDeletingLastPathComponent];
     NSString* fullPath = [basePath stringByAppendingString:absolutePath];
     return [NSURL fileURLWithPath:fullPath];

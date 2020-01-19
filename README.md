@@ -1,5 +1,7 @@
-**SVGgh** *an SVG Rendering Framework for iOS*
--
+# **SVGgh** *an SVG Rendering Framework for iOS*
+
+[![CocoaPods](https://img.shields.io/cocoapods/v/SVGgh.svg)](https://cocoapods.org/?q=SVGgh) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+
 Author [Glenn R. Howes](mailto:glenn@genhelp.com), *owner [Generally Helpful Software](http://genhelp.com)*
 
 ### Introduction
@@ -37,14 +39,21 @@ If you just want to use the code in your app and are uninterested in the underly
 * SVGToPDFConverter.h A class to convert the renderer's contents to a PDF.
 * SVGPrinter.h A class to send a renderer's contents to a printer.
 
-####If you are familiar with using CocoaPods and using it in your project
+#### If you are familiar with using CocoaPods and using it in your project
 * Insert ````pod 'SVGgh'```` into your PodFile
 • If you set your deployment target to iOS 8 or above, you should insert 
 ````use_frameworks!```` in your Podfile. 
 
 * Go through the standard procedures for updating your Xcode workspace via CocoaPods. ````pod update````, ````pod install````, etc.
 
-####If you are not using CocoaPods
+#### If you are familiar with using Carthage and usin it in your project
+* Insert **GenerallyHelpfulSoftware/SVGgh** to your Cartfile
+* Execute `carthage update` command
+* Drag the framework into your own Xcode project
+
+For more information follow https://github.com/Carthage/Carthage
+
+#### If you are not using CocoaPods
 To compile the framework. 
 * Load the included **SVGgh.xcodeproj** project in Xcode 6.3 or above 
 * **Build** the **Framework** target.
@@ -55,14 +64,14 @@ To use, you'll want to follow the following steps:
 * Add the **SVGgh** library to your Xcode project.
 * ````#include <SVGgh/SVGgh.h>;````
 
-####Once you have installed the library
+#### Once you have installed the library
 * early in the launch of your app call 
     **[GHControlFactory setDefaultScheme:kColorSchemeClear];**
 * early in the launch of your app call
 **MakeSureSVGghLinks();** in order to link classes only referenced in storyboards or nibs. As in:
 
 ````
-#import <SVGgh/SVGgh.h>
+# import <SVGgh/SVGgh.h>
 
 @implementation YourAppDelegate
 
@@ -172,8 +181,6 @@ The starting point is the **SVGRenderer**, which as a subclass of **SVGParser** 
 I've gone through and added Doxygen style comments to all the header files, so there is some hope of finding your way. 
 
 ### Attribution
-While the vast majority of the code in this release was written by me. There are a couple of classes or categories that were found online but have a flexible enough license for me to include here.
-* Jonathan Wight wrote a Base64 Transcoder which I found quite useful for handling embedded images.
-* Ian Baird wrote a category for NSData for Base64 which I also found very easy to use. 
+While the vast majority of the code in this release was written by me. There are a couple of classes or categories that were found online but have a flexible enough license for me to include here. 
 * [Ryan Hornberger] (http://www.ryanhornberger.com) was thoughtful enough to do something I had been too slammed to do: create a CocoaPod Spec for this library making it much more useful.
 * I think a snippet from [Erica Sadun] (https://github.com/erica) was the basis of my UIColorFromSVGColorString, although it's grown quite a bit since then. 
