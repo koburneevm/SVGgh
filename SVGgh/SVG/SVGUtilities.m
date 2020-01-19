@@ -2125,14 +2125,21 @@ void AddSVGArcToPath(CGMutablePathRef thePath,
 			xLinkPath = [relativeFilePath stringByAppendingPathComponent:xLinkPath];
             fileURL = [svgContext absoluteURL:xLinkPath];
 		}
+        else if(xLinkPath.length)
+        {
+            if ([[NSFileManager defaultManager] fileExistsAtPath:xLinkPath])
+            {
+                fileURL = [NSURL fileURLWithPath:xLinkPath];
+            }
+            else
+            {
+                fileURL = [[NSBundle mainBundle] URLForResource:[xLinkPath stringByDeletingPathExtension] withExtension:[xLinkPath pathExtension]];
+            }
+        }
         else if(relativeFilePath)
         {
             xLinkPath = relativeFilePath;
             fileURL = [svgContext relativeURL:xLinkPath];
-        }
-        else if(xLinkPath.length)
-        {
-            fileURL = [NSURL fileURLWithPath:xLinkPath];
         }
         
 		[GHImageCache retrieveCachedImageFromURL:fileURL intoCallback:^(UIImage *anImage, NSURL *location) {
@@ -2180,7 +2187,7 @@ void AddSVGArcToPath(CGMutablePathRef thePath,
                     NSString* trimmedValuePairString = [aValuePairString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 					if([trimmedValuePairString hasPrefix:prefix] && trimmedValuePairString.length > prefix.length)
 					{
-						result = [aValuePairString substringFromIndex:[prefix length]];
+						result = [trimmedValuePairString substringFromIndex:[prefix length]];
                         result = [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 						break;
 					}

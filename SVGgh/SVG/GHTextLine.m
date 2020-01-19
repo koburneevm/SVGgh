@@ -105,10 +105,23 @@
         {
             x = -lineWidth/2.0;
         }
+
+        if([textAnchorString isEqualToString:@"end"])
+        {
+            x = -lineWidth;
+        }
+
         if(lineWidth > 0)
         {
             result = CGRectMake(x, -ascent, (CGFloat)lineWidth, ascent+descent); // TODO return the real value
         }
+    }
+    
+    if (!CGRectIsNull(result))
+    {
+        CGFloat x = [self.attributes[@"x"] floatValue];
+        CGFloat y = [self.attributes[@"y"] floatValue];
+        result = CGRectOffset(result, x, y);
     }
     
     return result;

@@ -475,7 +475,8 @@
                 
                 CGRect	drawRect = myRect;
                 NSString* preserveAspectRatioString = [self.attributes objectForKey:@"preserveAspectRatio"];
-                if(preserveAspectRatioString != nil && ![preserveAspectRatioString isEqualToString:@"none"])
+                // ignore preserveAspectRatio with non-zero clip-path
+                if(!clippingObject && preserveAspectRatioString != nil && ![preserveAspectRatioString isEqualToString:@"none"])
                 {
                     CGFloat	naturalWidth = CGImageGetWidth(quartzImage);
                     CGFloat	naturalHeight = CGImageGetHeight(quartzImage);
@@ -486,6 +487,7 @@
                         CGContextClipToRect(quartzContext, myRect);
                     }
                 }
+
                 if(!CGRectIsEmpty(drawRect))
                 {
                     
@@ -563,6 +565,12 @@
 
 @end
 
+@interface GHShape()
+
+- (void) invalidateQuartzPath;
+
+@end
+
 @interface GHShape(Private)
 -(CGPathRef) newQuartzPath;
 -(void) setupContext:(CGContextRef)quartzContext withAttributes:(NSDictionary*)attributes withSVGContext:(id<SVGContext>)svgContext;
@@ -601,10 +609,36 @@
 	return _quartzPath;
 }
 
+- (void)setValue:(id)value forKey:(NSString *)key
+{
+    [super setValue:value forKey:key];
+    
+    if ([key isEqualToString:@"attributes"])
+    {
+        [self invalidateQuartzPath];
+    }
+}
+
+- (void)invalidateQuartzPath
+{
+    _quartzPath = 0;
+}
+
 -(NSString*) strokeColor
 {
 	NSString* result = [self valueForStyleAttribute:@"stroke"];
 	return result;
+}
+
+- (CGFloat)strokeWidth
+{
+    CGFloat strokeWidth = 0.0;
+    NSString *result = [self valueForStyleAttribute:@"stroke-width"];
+    if (result && [[NSScanner scannerWithString:result] scanFloat:NULL])
+    {
+         strokeWidth = result.floatValue;
+    }
+    return strokeWidth;
 }
 
 -(BOOL) isClosed
@@ -777,6 +811,7 @@
             {
                 strokeColorUI = [strokeColorUI colorWithAlphaComponent:strokeOpacity];
             }
+            CGContextSetLineWidth(quartzContext, self.strokeWidth);
             CGContextSetStrokeColorWithColor(quartzContext, strokeColorUI.CGColor);
         }
 	}

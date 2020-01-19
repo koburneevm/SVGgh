@@ -393,7 +393,7 @@ typedef enum GHSementType
     else if(newDefinitions.count > segment)
     {
         [newDefinitions insertObject:aDefinition atIndex:segment];
-        GHSegmentedControlSegmentLayer* leftSegmentLayer = [self.sublayers objectAtIndex:segment];
+        GHSegmentedControlSegmentLayer* leftSegmentLayer = (GHSegmentedControlSegmentLayer*)[self.sublayers objectAtIndex:segment];
         startRect.origin.x = leftSegmentLayer.frame.origin.x+leftSegmentLayer.frame.size.width;
         
         newLayer.frame = startRect;

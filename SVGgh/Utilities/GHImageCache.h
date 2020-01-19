@@ -30,6 +30,23 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <UIKit/UIKit.h>
 
+/*! @brief  If you want to be notified when an image is added to the cache use NSNotificationCenter to register this string
+ @memberof GHImageCache
+ */
+extern NSString* const kImageAddedToCacheNotificationName; // does not include faces being added via the picker.
+extern NSString* const kImageAddedKey;
+extern NSString* const kImageURLAddedKey;
+
+/*! @brief  If you want to be notified when faces (plural) is added to the cache use NSNotificationCenter to register this string
+ @memberof GHImageCache
+ */
+extern NSString* const kFacesAddedToCacheNotificationName;
+extern NSString* const kFacesAddedKey;
+extern NSString* const kFacesURLsAddedKey;
+
+
+extern const CGColorRenderingIntent	kColoringRenderingIntent;
+
 /*! @brief definition of a block callback to handle the retrieval of an object
 * @param anImage resulting image
 * @param location where image was located
@@ -109,21 +126,8 @@ typedef void (^handleExtractedFaces_t)(NSError* error, NSArray* images, NSArray*
 * @param callback returns a possible error or the faces and their locations
 */
 +(void) extractFaceImageFromPickedImage:(UIImage*) anImage withCallback:(handleExtractedFaces_t)callback;
+
++ (void)purge;
+
 @end
 
-/*! @brief  If you want to be notified when an image is added to the cache use NSNotificationCenter to register this string
- @memberof GHImageCache
- */
-extern NSString* const kImageAddedToCacheNotificationName; // does not include faces being added via the picker.
-    extern NSString* const kImageAddedKey;
-    extern NSString* const kImageURLAddedKey;
-
-/*! @brief  If you want to be notified when faces (plural) is added to the cache use NSNotificationCenter to register this string
-  @memberof GHImageCache
- */
-extern NSString* const kFacesAddedToCacheNotificationName;
-    extern NSString* const kFacesAddedKey;
-    extern NSString* const kFacesURLsAddedKey;
-
-
-extern const CGColorRenderingIntent	kColoringRenderingIntent;

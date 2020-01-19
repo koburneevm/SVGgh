@@ -131,6 +131,7 @@
 */
 @interface GHShape : GHRenderableObject
 @property (strong, nonatomic, readonly) NSString*		strokeColor;
+@property (nonatomic, readonly)         CGFloat         strokeWidth;
 @property (nonatomic, readonly)         BOOL			isClosed;
 @property (nonatomic, readonly)         CGPathRef		quartzPath;
 @end

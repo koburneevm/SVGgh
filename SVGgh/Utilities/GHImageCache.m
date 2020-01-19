@@ -30,6 +30,17 @@
 #import <UIKit/UIKit.h>
 #import <ImageIO/ImageIO.h>
 
+NSString * typeOfImage(CGDataProviderRef imgDataProvider, NSString *typeHint) {
+    const void * keys[] = { kCGImageSourceShouldCache, kCGImageSourceTypeIdentifierHint };
+    const void * values[] = { kCFBooleanFalse, (__bridge CFStringRef)typeHint };
+    CFDictionaryRef options = CFDictionaryCreate(kCFAllocatorDefault, keys, values, 2, NULL, NULL);
+    CGImageSourceRef imageSource = CGImageSourceCreateWithDataProvider(imgDataProvider, options);
+    NSString *imageType = (__bridge NSString *)CGImageSourceGetType(imageSource);
+    CFRelease(options);
+    if (imageSource) CFRelease(imageSource);
+    return imageType;
+}
+
 
 const CGColorRenderingIntent	kColoringRenderingIntent = kCGRenderingIntentPerceptual;
 
@@ -120,31 +131,75 @@ NSString* const kFacesURLsAddedKey = @"urls";
     }
     else
     {
+        // file url could have become unreachable because the source assets have been removed
+        // before asynchronous operation reached this point
+        if (aURL == nil
+            || ([aURL isFileURL] && ![aURL checkResourceIsReachableAndReturnError:NULL]))
+        {
+            retrievalCallback(nil, aURL);
+            return;
+        }
+        
 		CGImageRef imageRef = 0;
-        if([[aURL pathExtension] isEqualToString:@"png"])
+        CGDataProviderRef imageProvider = NULL;
+        if ([aURL isFileURL])
+        {
+           imageProvider = CGDataProviderCreateWithURL((__bridge CFURLRef) aURL);
+        }
+        else
+        {
+            NSError *error = nil;
+            NSData *loadedData = [NSData dataWithContentsOfURL:aURL options:0 error:&error];
+            if (loadedData)
+            {
+                imageProvider = CGDataProviderCreateWithCFData((__bridge CFDataRef)loadedData);
+            }
+            else
+            {
+                NSLog(@"ERROR LOADING IMAGE at %@: %@", aURL, error);
+            }
+        }
+        NSString *type = typeOfImage(imageProvider, nil);
+        if([type isEqualToString:@"public.png"] || [[aURL pathExtension] isEqualToString:@"png"])
 		{
-			CGDataProviderRef pngProvider = CGDataProviderCreateWithURL((__bridge CFURLRef) aURL);
-			if(pngProvider != 0)
+            CGDataProviderRef pngProvider = 0;
+            if (imageProvider)
+                pngProvider = imageProvider;
+            else
+            {
+                pngProvider = CGDataProviderCreateWithURL((__bridge CFURLRef) aURL);
+                imageProvider = pngProvider;
+            }
+			if(pngProvider)
 			{
 				imageRef = CGImageCreateWithPNGDataProvider(pngProvider, NULL, true,
 															kColoringRenderingIntent);
-				CFRelease(pngProvider);
 			}
 		}
-		else  if([[aURL pathExtension] isEqualToString:@"jpg"])
+		else  if([type isEqualToString:@"public.jpeg"] || [[aURL pathExtension] isEqualToString:@"jpg"])
 		{
-			CGDataProviderRef jpgProvider = CGDataProviderCreateWithURL((__bridge CFURLRef) aURL);
+            CGDataProviderRef jpgProvider = 0;
+            if (imageProvider)
+                jpgProvider = imageProvider;
+            else
+            {
+                jpgProvider = CGDataProviderCreateWithURL((__bridge CFURLRef) aURL);
+                imageProvider = jpgProvider;
+            }
 			if(jpgProvider != 0)
 			{
 				imageRef = CGImageCreateWithJPEGDataProvider(jpgProvider, NULL, true,
                                                              kColoringRenderingIntent);
-				CFRelease(jpgProvider);
 			}
 		}
 		else
 		{
 			result = [[UIImage alloc] initWithContentsOfFile:[aURL path]];
 		}
+        if (imageProvider != 0)
+        {
+            CFRelease(imageProvider);
+        }
 		if(imageRef != 0)
 		{
 			result = [[UIImage alloc] initWithCGImage:imageRef];
@@ -159,11 +214,42 @@ NSString* const kFacesURLsAddedKey = @"urls";
     }
 }
 
+static NSMutableDictionary *asyncLoadingBlocksByURL = nil;
+
 +(void) aSyncRetrieveCachedImageFromURL:(NSURL*)aURL intoCallback:(handleRetrievedImage_t)retrievalCallback
 {
-    [[GHImageCache loadQueue] addOperationWithBlock:^{
-        [GHImageCache retrieveCachedImageFromURL:aURL intoCallback:retrievalCallback];
-    }];
+    if (asyncLoadingBlocksByURL == nil) asyncLoadingBlocksByURL = [NSMutableDictionary new];
+    
+    BOOL startLoading = NO;
+    @synchronized(self)
+    {
+        NSMutableArray *blocks = asyncLoadingBlocksByURL[aURL];
+        if (blocks == nil)
+        {
+            blocks = [NSMutableArray new];
+            startLoading = YES;
+        }
+        [blocks addObject:[retrievalCallback copy]];
+        asyncLoadingBlocksByURL[aURL] = blocks;
+    }
+    
+    if (startLoading)
+    {
+        [[GHImageCache loadQueue] addOperationWithBlock:^{
+            [GHImageCache retrieveCachedImageFromURL:aURL intoCallback:^(UIImage *anImage, NSURL *location) {
+                NSArray *blocks = nil;
+                @synchronized(self)
+                {
+                    blocks = asyncLoadingBlocksByURL[aURL];
+                    [asyncLoadingBlocksByURL removeObjectForKey:aURL];
+                }
+                for (handleRetrievedImage_t block in blocks)
+                {
+                    block(anImage, location);
+                }
+            }];
+        }];
+    }
 }
 
 +(NSString*) newUniqueID
@@ -418,6 +504,11 @@ NSString* const kFacesURLsAddedKey = @"urls";
         callback(saveError, faceImages, urls);
         
     }];
+}
+
++ (void)purge
+{
+    [[GHImageCache imageCache] removeAllObjects];
 }
 
 @end

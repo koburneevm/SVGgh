@@ -48,6 +48,9 @@
 @property(nonatomic, readonly)              CTFontRef			fontRef;
 @property(strong, nonatomic, readonly)      NSArray*			children;
 @property(strong, nonatomic, readonly)      NSArray*			contents; // svg version of children
+
+@property (nonatomic) NSArray *currentStrings;
+
 -(void) setupFontDescriptorWithBaseDescriptor:(CTFontDescriptorRef)baseDescriptor andBaseFont:(CTFontRef)baseFont;
 @end
 
@@ -84,11 +87,13 @@
 {
 	if(_children == nil)
 	{
+        NSMutableArray *currentStrings = [NSMutableArray new];
+        
         NSCharacterSet* notSpace = [[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet];
 		NSMutableArray* mutableResult = [[NSMutableArray alloc] initWithCapacity:[self.contents count]];
 		CTFontRef myFontRef = self.fontRef;
 		CTFontDescriptorRef	myFontDescription = self.fontDescriptor;
-		NSMutableAttributedString*	currentString = [[NSMutableAttributedString alloc] init];
+		NSMutableAttributedString*	currentString = nil;
 		NSArray* contentsToUse = self.contents;
 		NSDictionary* defaultDefinition = [NSDictionary dictionaryWithObject:self.attributes forKey:kAttributesElementName];
 		NSDictionary*	lastDefinition = defaultDefinition;
@@ -110,49 +115,48 @@
 				if([elementName isEqualToString:@"tspan"])
 				{
 					NSDictionary* tspanAttributes = [aDefinition objectForKey:kAttributesElementName];
-					NSString*	text = [aDefinition objectForKey:kElementText];
+                    NSString*   text = [aDefinition objectForKey:kElementText] ?: @"";
                     if([self cleanLineEndings])
                     {
                         text = [SVGTextUtilities cleanXMLText:text];
                     }
-                     NSRange firstNonWhite = [text rangeOfCharacterFromSet:notSpace];
-                    
-					if(firstNonWhite.location != NSNotFound)
-					{
-						NSAttributedString* spansAttributedString = [SVGTextUtilities attributedStringFromString:text
-                                                                                SVGStyleAttributes:tspanAttributes
-                                                                                baseFont:myFontRef
-                                                                                baseFontDescriptor:myFontDescription
-                                                                               includeParagraphStyle:NO];
-						if([tspanAttributes objectForKey:@"transform"] != nil
-						   || [tspanAttributes objectForKey:@"x"] != nil
-						   || [tspanAttributes objectForKey:@"dx"] != nil
-						   || [tspanAttributes objectForKey:@"y"] != nil
-						   || [tspanAttributes objectForKey:@"dy"] != nil
-						   || [tspanAttributes objectForKey:@"rotate"] != nil)
-						{ // need a new line
-							if([currentString length])
-							{
-								CTLineRef lineRef = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef) currentString);
-								if(lineRef != 0)
-								{
-                                    NSDictionary* theAttributes = [lastDefinition objectForKey:kAttributesElementName];
-									GHTextLine* aLine = [[GHTextLine alloc] initWithAttributes:theAttributes andTextLine:lineRef];
-									CFRelease(lineRef);
-									[mutableResult addObject:aLine];
-								}
-							}	
-							currentString = [[NSMutableAttributedString alloc] initWithAttributedString:spansAttributedString];
-                            lastDefinition = aDefinition;
-							
-						}
-						else 
-						{// append to old line, just a change in style
-							
-							[currentString appendAttributedString:spansAttributedString];
-						}
-					}
-					
+
+                    NSAttributedString* spansAttributedString = [SVGTextUtilities attributedStringFromString:text
+                                                                                          SVGStyleAttributes:tspanAttributes
+                                                                                                    baseFont:myFontRef
+                                                                                          baseFontDescriptor:myFontDescription
+                                                                                       includeParagraphStyle:NO];
+                    if([tspanAttributes objectForKey:@"transform"] != nil
+                       || [tspanAttributes objectForKey:@"x"] != nil
+                       || [tspanAttributes objectForKey:@"dx"] != nil
+                       || [tspanAttributes objectForKey:@"y"] != nil
+                       || [tspanAttributes objectForKey:@"dy"] != nil
+                       || [tspanAttributes objectForKey:@"rotate"] != nil)
+                    { // need a new line
+                        if (currentString != nil)
+                        {
+                            [currentStrings addObject:[currentString copy]];
+                            CTLineRef lineRef = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef) currentString);
+                            if(lineRef != 0)
+                            {
+                                NSDictionary* theAttributes = [lastDefinition objectForKey:kAttributesElementName];
+                                GHTextLine* aLine = [[GHTextLine alloc] initWithAttributes:theAttributes andTextLine:lineRef];
+                                CFRelease(lineRef);
+                                [mutableResult addObject:aLine];
+                            }
+                        }
+                        currentString = [[NSMutableAttributedString alloc] initWithAttributedString:spansAttributedString];
+                        lastDefinition = aDefinition;
+                        
+                    }
+                    else 
+                    {// append to old line, just a change in style
+                        if (currentString == nil) {
+                            currentString = [NSMutableAttributedString new];
+                        }
+                        
+                        [currentString appendAttributedString:spansAttributedString];
+                    }
 				}
                 else if([elementName isEqualToString:@"textPath"])
                 {
@@ -182,15 +186,13 @@
                     childAsString = [SVGTextUtilities cleanXMLText:childAsString];
                 }
                 
-                NSRange firstNonWhite = [childAsString rangeOfCharacterFromSet:notSpace];
-                
-                if(childAsString.length && firstNonWhite.location != NSNotFound)
-                {
+                NSRange notSpaceRange = [childAsString rangeOfCharacterFromSet:notSpace];
+                if (childAsString != nil && notSpaceRange.location != NSNotFound) {
                     NSAttributedString* spansAttributedString = [SVGTextUtilities attributedStringFromString:childAsString
-                                                                       nonFontSVGStyleAttributes:self.attributes
-                                                                                        baseFont:myFontRef
-                                                                              baseFontDescriptor:myFontDescription
-                                                                            includeParagraphStyle:NO];
+                                                                                   nonFontSVGStyleAttributes:self.attributes
+                                                                                                    baseFont:myFontRef
+                                                                                          baseFontDescriptor:myFontDescription
+                                                                                       includeParagraphStyle:NO];
                     
                     
                     NSDictionary* lastAttributes = [lastDefinition objectForKey:kAttributesElementName];
@@ -202,8 +204,10 @@
                            || [lastAttributes objectForKey:@"dy"] != nil
                            || [lastAttributes objectForKey:@"rotate"] != nil))
                     {// need a new line
-                        if([currentString length])
+                        
+                        if (currentString != nil)
                         {
+                            [currentStrings addObject:[currentString copy]];
                             CTLineRef lineRef = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef) currentString);
                             if(lineRef != 0)
                             {
@@ -212,20 +216,25 @@
                                 CFRelease(lineRef);
                                 [mutableResult addObject:aLine];
                             }
-                        }	
+                        }
                         currentString = [[NSMutableAttributedString alloc] initWithAttributedString:spansAttributedString];
-                        
                     }
                     else
                     {
+                        if (currentString == nil) {
+                            currentString = [NSMutableAttributedString new];
+                        }
+                        
                         [currentString appendAttributedString:spansAttributedString];
                     }
                     lastDefinition = defaultDefinition;
                 }
-			}
+            }
 		}
-		if([currentString length])
+
+        if (currentString != nil)
 		{
+            [currentStrings addObject:[currentString copy]];
 			CTLineRef lineRef = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef) currentString);
 			if(lineRef != 0)
 			{
@@ -234,7 +243,11 @@
 				CFRelease(lineRef);
 				[mutableResult addObject:aLine];
 			}
-		}	
+		}
+        
+        self.currentString = currentString;
+        self.currentStrings = currentStrings;
+        
 		_children = [mutableResult copy];
 	}
 	return _children;
@@ -503,12 +516,13 @@
 
 -(CGRect) getBoundingBoxWithSVGContext:(id<SVGContext>)svgContext
 {
-    CGRect result = CGRectZero;
+    CGRect result = CGRectNull;
     for(NSObject<GHPathDescription, GHGlyphMaker>* aChild in self.children)
 	{
         if([aChild respondsToSelector:@selector(getBoundingBoxWithSVGContext:)])
         {
-            CGRect childRect = [(GHTextLine*)aChild getBoundingBoxWithSVGContext:svgContext];
+            GHTextLine *textLine = (GHTextLine *)aChild;
+            CGRect childRect = [textLine getBoundingBoxWithSVGContext:svgContext];
             if(!CGRectIsNull(result) && !CGRectIsNull(childRect))
             {
                 result = CGRectUnion(result, childRect);
@@ -519,6 +533,13 @@
             }
         }
 	}
+    
+//    if (!CGRectIsNull(result))
+//    {
+//        CGFloat x = [self.attributes[@"x"] floatValue];
+//        CGFloat y = [self.attributes[@"y"] floatValue];
+//        result = CGRectOffset(result, x, y);
+//    }
     return result;
 }
 
@@ -601,7 +622,7 @@
     {
         [result beginEditing];
     }
-    NSString* rawText = [aTSpanDefinition objectForKey:kElementText];
+    NSString* rawText = [aTSpanDefinition objectForKey:kElementText] ?: @"";
     rawText = [rawText stringByReplacingOccurrencesOfString:@"\n\n" withString:@"\u2029"];
     rawText = [rawText stringByReplacingOccurrencesOfString:@"\n" withString:@"\u2029"];
     NSArray* mySubElements = [aTSpanDefinition objectForKey:kContentsElementName];

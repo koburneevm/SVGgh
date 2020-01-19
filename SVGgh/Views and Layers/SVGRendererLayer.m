@@ -235,7 +235,11 @@
                     CGColorRef myBackgroundColor = self.backgroundColor;
                     if(myBackgroundColor == 0 && [self.delegate respondsToSelector:@selector(copyFillColor)])
                     {
-                        UIColor* delegatesColor = [self.delegate copyFillColor];
+                        UIColor* delegatesColor =
+                        [
+                          self.delegate performSelector:NSSelectorFromString(@"copyFillColor")//@selector(copyFillColor)
+                        ];
+
                         myBackgroundColor = delegatesColor.CGColor;
                         CGColorRetain(myBackgroundColor);
                     }

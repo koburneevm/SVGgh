@@ -39,6 +39,10 @@
 * @param svgContext state information to give context to how this object behaves
 */
 -(void)addGlyphsToArray:(NSMutableArray*)glyphList  withSVGContext:(id<SVGContext>)svgContext;
+
+@property (nonatomic) id currentString;
+@property (nonatomic, readonly) NSArray *currentStrings;
+
 @end
 
 /*! @brief manifestation of an SVG 'textArea' entity a collection of other entities

@@ -76,10 +76,10 @@ BOOL IsFontFamilyAvailable(NSString* fontFamilyName);
     NSString* result = sourceText;
     NSRange rangeOfLineEndings = [sourceText rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]];
     NSCharacterSet* notWhiteSpaceOrNewlines = [[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet];
-    if(rangeOfLineEndings.location != NSNotFound)
+    if(rangeOfLineEndings.location != NSNotFound && rangeOfLineEndings.length > 0)
     {
         NSMutableString* mutableResult = [result mutableCopy];
-        while(rangeOfLineEndings.location != NSNotFound)
+        while(rangeOfLineEndings.location != NSNotFound && rangeOfLineEndings.length > 0)
         {
             NSRange rangeOfNotWhiteSpaceOrLineEnding = [mutableResult rangeOfCharacterFromSet:notWhiteSpaceOrNewlines options:0 range:NSMakeRange(rangeOfLineEndings.location, mutableResult.length-rangeOfLineEndings.location)];
             if(rangeOfNotWhiteSpaceOrLineEnding.location != NSNotFound)
@@ -114,7 +114,8 @@ BOOL IsFontFamilyAvailable(NSString* fontFamilyName);
 	for(NSString* aKeyName in svgAttributeKeys)
 	{
 		if([aKeyName hasPrefix:@"font"]
-		   || [aKeyName isEqualToString:@"text-anchor"])
+		   || [aKeyName isEqualToString:@"text-anchor"]
+       || [aKeyName isEqualToString:@"letter-spacing"])
 		{
 			[mutableFontAttributes setObject:[SVGattributes objectForKey:aKeyName] forKey:aKeyName];
 		}
@@ -501,6 +502,9 @@ BOOL IsFontFamilyAvailable(NSString* fontFamilyName);
         }
     }*/
     [mutableAttributes setObject:[NSNumber numberWithBool:useContextColor] forKey:(NSString*)kCTForegroundColorFromContextAttributeName];
+
+    NSString *letterSpacing = [aDefinition objectForKey:@"letter-spacing"] ?: @0;
+    [mutableAttributes setObject:@(letterSpacing.doubleValue) forKey:(NSString*)kCTKernAttributeName];
     
     if(includeParagraphStyle)
     {
@@ -872,6 +876,9 @@ BOOL IsFontFamilyAvailable(NSString* fontFamilyName);
 			NSString* unquotedString = UnquotedSVGString(aFontFamilyAttribute);
 			if([unquotedString length] && [mutableResult objectForKey:(NSString*)kCTFontFamilyNameAttribute] == nil)
 			{ // if I didn't set this before with a fontname that exists on this system.
+                if ([unquotedString isEqualToString:@"Twentytwelve"]) {
+                    unquotedString = @"Twentytwelve Periodica";
+                }
                 
 				if(IsFontFamilyAvailable(unquotedString))
 				{
