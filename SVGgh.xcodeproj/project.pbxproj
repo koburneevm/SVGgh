@@ -9,14 +9,20 @@
 /* Begin PBXBuildFile section */
 		210DF4691B9132FE00D702D5 /* SVGgh.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21F6BBE21B29A21E00DCEEC2 /* SVGgh.framework */; };
 		210DF46A1B9132FE00D702D5 /* SVGgh.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 21F6BBE21B29A21E00DCEEC2 /* SVGgh.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		211E70931B2A1E4300667BE9 /* Artwork in Resources */ = {isa = PBXBuildFile; fileRef = 21F6BCE71B29A8FE00DCEEC2 /* Artwork */; };
+		211CB3D11BD4346F00121DB4 /* SVGgh.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21F6BBE21B29A21E00DCEEC2 /* SVGgh.framework */; };
+		211CB3D21BD4346F00121DB4 /* SVGgh.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 21F6BBE21B29A21E00DCEEC2 /* SVGgh.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		212A8B781B63C4E8009B28C9 /* SVGPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 212A8B771B63C4E8009B28C9 /* SVGPerformanceTests.swift */; };
 		212A8B791B63C542009B28C9 /* Artwork in Resources */ = {isa = PBXBuildFile; fileRef = 21F6BCE71B29A8FE00DCEEC2 /* Artwork */; };
-		21309A4E1B29FA3700E8B812 /* SVGgh.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21F6BBE21B29A21E00DCEEC2 /* SVGgh.framework */; };
 		2181F3A71B4F5D8F007617A7 /* SVGTabBarItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2181F3A51B4F5D8F007617A7 /* SVGTabBarItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2181F3A81B4F5D8F007617A7 /* SVGTabBarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2181F3A61B4F5D8F007617A7 /* SVGTabBarItem.m */; };
 		2194CD3F1B29FB4F00702F44 /* Artwork in Resources */ = {isa = PBXBuildFile; fileRef = 21F6BCE71B29A8FE00DCEEC2 /* Artwork */; };
 		21B7993B1B9A60080014F13D /* DebugApp_UI_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 21B7993A1B9A60080014F13D /* DebugApp_UI_Tests.m */; };
+		21DEC8AC1BAD89C90044BAD7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 21DEC8AB1BAD89C90044BAD7 /* main.m */; };
+		21DEC8AF1BAD89C90044BAD7 /* SVGghTVDebuggingAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 21DEC8AE1BAD89C90044BAD7 /* SVGghTVDebuggingAppDelegate.m */; };
+		21DEC8B51BAD89C90044BAD7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 21DEC8B31BAD89C90044BAD7 /* Main.storyboard */; };
+		21DEC8B71BAD89C90044BAD7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 21DEC8B61BAD89C90044BAD7 /* Assets.xcassets */; };
+		21DEC9161BAD8DCF0044BAD7 /* Artwork in Resources */ = {isa = PBXBuildFile; fileRef = 21F6BCE71B29A8FE00DCEEC2 /* Artwork */; };
+		21DEC91A1BAE8D130044BAD7 /* SVGghDebuggingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 21F6BCE11B29A52600DCEEC2 /* SVGghDebuggingViewController.m */; };
 		21F6BBE81B29A21E00DCEEC2 /* SVGgh.h in Headers */ = {isa = PBXBuildFile; fileRef = 21F6BBE71B29A21E00DCEEC2 /* SVGgh.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		21F6BBEE1B29A21E00DCEEC2 /* SVGgh.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21F6BBE21B29A21E00DCEEC2 /* SVGgh.framework */; };
 		21F6BBF51B29A21E00DCEEC2 /* SVGghTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 21F6BBF41B29A21E00DCEEC2 /* SVGghTests.m */; };
@@ -81,6 +87,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		211CB3D31BD4346F00121DB4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 21F6BBD91B29A21E00DCEEC2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 21F6BBE11B29A21E00DCEEC2;
+			remoteInfo = SVGgh;
+		};
 		21309A4C1B29F9DF00E8B812 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 21F6BBD91B29A21E00DCEEC2 /* Project object */;
@@ -109,6 +122,27 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		21DEC8DB1BAD89E50044BAD7 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				211CB3D21BD4346F00121DB4 /* SVGgh.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21E048491BBE390D003892E5 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -118,6 +152,18 @@
 		2181F3A51B4F5D8F007617A7 /* SVGTabBarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGTabBarItem.h; sourceTree = "<group>"; };
 		2181F3A61B4F5D8F007617A7 /* SVGTabBarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVGTabBarItem.m; sourceTree = "<group>"; };
 		21B7993A1B9A60080014F13D /* DebugApp_UI_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DebugApp_UI_Tests.m; sourceTree = "<group>"; };
+		21DEC8A81BAD89C90044BAD7 /* SVGgh TV Debugging App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SVGgh TV Debugging App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		21DEC8AB1BAD89C90044BAD7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		21DEC8AD1BAD89C90044BAD7 /* SVGghTVDebuggingAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVGghTVDebuggingAppDelegate.h; sourceTree = "<group>"; };
+		21DEC8AE1BAD89C90044BAD7 /* SVGghTVDebuggingAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SVGghTVDebuggingAppDelegate.m; sourceTree = "<group>"; };
+		21DEC8B41BAD89C90044BAD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		21DEC8B61BAD89C90044BAD7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		21DEC8B81BAD89C90044BAD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		21DEC8C31BAD89E50044BAD7 /* SVGghtv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVGghtv.h; sourceTree = "<group>"; };
+		21DEC8C51BAD89E50044BAD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		21DEC8D11BAD89E50044BAD7 /* SVGghtvTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SVGghtvTests.m; sourceTree = "<group>"; };
+		21DEC8D31BAD89E50044BAD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		21DEC9171BAE8BB10044BAD7 /* SVGgh TV Debugging App-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SVGgh TV Debugging App-Bridging-Header.h"; sourceTree = "<group>"; };
 		21F6BBE21B29A21E00DCEEC2 /* SVGgh.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SVGgh.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		21F6BBE61B29A21E00DCEEC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		21F6BBE71B29A21E00DCEEC2 /* SVGgh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVGgh.h; sourceTree = "<group>"; };
@@ -186,12 +232,20 @@
 		21F6BCDE1B29A52600DCEEC2 /* SVGghDebuggingAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGghDebuggingAppDelegate.h; sourceTree = "<group>"; };
 		21F6BCDF1B29A52600DCEEC2 /* SVGghDebuggingAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVGghDebuggingAppDelegate.m; sourceTree = "<group>"; };
 		21F6BCE01B29A52600DCEEC2 /* SVGghDebuggingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGghDebuggingViewController.h; sourceTree = "<group>"; };
-		21F6BCE11B29A52600DCEEC2 /* SVGghDebuggingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVGghDebuggingViewController.m; sourceTree = "<group>"; };
+		21F6BCE11B29A52600DCEEC2 /* SVGghDebuggingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVGghDebuggingViewController.m; sourceTree = "<group>"; usesTabs = 1; };
 		21F6BCE51B29A57C00DCEEC2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		21F6BCE71B29A8FE00DCEEC2 /* Artwork */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Artwork; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		21DEC8A51BAD89C90044BAD7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				211CB3D11BD4346F00121DB4 /* SVGgh.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		21F6BBDE1B29A21E00DCEEC2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -212,13 +266,52 @@
 			buildActionMask = 2147483647;
 			files = (
 				210DF4691B9132FE00D702D5 /* SVGgh.framework in Frameworks */,
-				21309A4E1B29FA3700E8B812 /* SVGgh.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		21DEC8A91BAD89C90044BAD7 /* SVGgh TV Debugging App */ = {
+			isa = PBXGroup;
+			children = (
+				21DEC8AD1BAD89C90044BAD7 /* SVGghTVDebuggingAppDelegate.h */,
+				21DEC8AE1BAD89C90044BAD7 /* SVGghTVDebuggingAppDelegate.m */,
+				21DEC8B31BAD89C90044BAD7 /* Main.storyboard */,
+				21DEC8B61BAD89C90044BAD7 /* Assets.xcassets */,
+				21DEC8B81BAD89C90044BAD7 /* Info.plist */,
+				21DEC8AA1BAD89C90044BAD7 /* Supporting Files */,
+				21DEC9171BAE8BB10044BAD7 /* SVGgh TV Debugging App-Bridging-Header.h */,
+			);
+			path = "SVGgh TV Debugging App";
+			sourceTree = "<group>";
+		};
+		21DEC8AA1BAD89C90044BAD7 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				21DEC8AB1BAD89C90044BAD7 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		21DEC8C21BAD89E50044BAD7 /* SVGghtv */ = {
+			isa = PBXGroup;
+			children = (
+				21DEC8C31BAD89E50044BAD7 /* SVGghtv.h */,
+				21DEC8C51BAD89E50044BAD7 /* Info.plist */,
+			);
+			path = SVGghtv;
+			sourceTree = "<group>";
+		};
+		21DEC8D01BAD89E50044BAD7 /* SVGghtvTests */ = {
+			isa = PBXGroup;
+			children = (
+				21DEC8D11BAD89E50044BAD7 /* SVGghtvTests.m */,
+				21DEC8D31BAD89E50044BAD7 /* Info.plist */,
+			);
+			path = SVGghtvTests;
+			sourceTree = "<group>";
+		};
 		21F6BBD81B29A21E00DCEEC2 = {
 			isa = PBXGroup;
 			children = (
@@ -227,6 +320,9 @@
 				21F6BBF11B29A21E00DCEEC2 /* SVGghTests */,
 				21F6BC891B29A48600DCEEC2 /* SVGgh Debugging App */,
 				21F6BCA31B29A48600DCEEC2 /* SVGgh Debugging AppTests */,
+				21DEC8A91BAD89C90044BAD7 /* SVGgh TV Debugging App */,
+				21DEC8C21BAD89E50044BAD7 /* SVGghtv */,
+				21DEC8D01BAD89E50044BAD7 /* SVGghtvTests */,
 				21F6BBE31B29A21E00DCEEC2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -237,6 +333,7 @@
 				21F6BBE21B29A21E00DCEEC2 /* SVGgh.framework */,
 				21F6BBED1B29A21E00DCEEC2 /* SVGghTests.xctest */,
 				21F6BC881B29A48600DCEEC2 /* SVGgh Debugging App.app */,
+				21DEC8A81BAD89C90044BAD7 /* SVGgh TV Debugging App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -456,6 +553,25 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		21DEC8A71BAD89C90044BAD7 /* SVGgh TV Debugging App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 21DEC8BB1BAD89C90044BAD7 /* Build configuration list for PBXNativeTarget "SVGgh TV Debugging App" */;
+			buildPhases = (
+				21DEC8A41BAD89C90044BAD7 /* Sources */,
+				21DEC8A51BAD89C90044BAD7 /* Frameworks */,
+				21DEC8A61BAD89C90044BAD7 /* Resources */,
+				21DEC8DB1BAD89E50044BAD7 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				211CB3D41BD4346F00121DB4 /* PBXTargetDependency */,
+			);
+			name = "SVGgh TV Debugging App";
+			productName = "SVGgh TV Debugging App";
+			productReference = 21DEC8A81BAD89C90044BAD7 /* SVGgh TV Debugging App.app */;
+			productType = "com.apple.product-type.application";
+		};
 		21F6BBE11B29A21E00DCEEC2 /* SVGgh */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 21F6BBF81B29A21E00DCEEC2 /* Build configuration list for PBXNativeTarget "SVGgh" */;
@@ -501,6 +617,7 @@
 				21F6BC851B29A48600DCEEC2 /* Frameworks */,
 				21F6BC861B29A48600DCEEC2 /* Resources */,
 				210DF46B1B9132FF00D702D5 /* Embed Frameworks */,
+				21E048491BBE390D003892E5 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
@@ -518,10 +635,13 @@
 		21F6BBD91B29A21E00DCEEC2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0700;
+				LastSwiftUpdateCheck = 0710;
 				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Generally Helpful";
 				TargetAttributes = {
+					21DEC8A71BAD89C90044BAD7 = {
+						CreatedOnToolsVersion = 7.1;
+					};
 					21F6BBE11B29A21E00DCEEC2 = {
 						CreatedOnToolsVersion = 6.3.2;
 					};
@@ -549,16 +669,26 @@
 				21F6BBE11B29A21E00DCEEC2 /* SVGgh */,
 				21F6BBEC1B29A21E00DCEEC2 /* SVGghTests */,
 				21F6BC871B29A48600DCEEC2 /* SVGgh Debugging App */,
+				21DEC8A71BAD89C90044BAD7 /* SVGgh TV Debugging App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		21DEC8A61BAD89C90044BAD7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21DEC9161BAD8DCF0044BAD7 /* Artwork in Resources */,
+				21DEC8B71BAD89C90044BAD7 /* Assets.xcassets in Resources */,
+				21DEC8B51BAD89C90044BAD7 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		21F6BBE01B29A21E00DCEEC2 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				211E70931B2A1E4300667BE9 /* Artwork in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -600,6 +730,16 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		21DEC8A41BAD89C90044BAD7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21DEC8AF1BAD89C90044BAD7 /* SVGghTVDebuggingAppDelegate.m in Sources */,
+				21DEC8AC1BAD89C90044BAD7 /* main.m in Sources */,
+				21DEC91A1BAE8D130044BAD7 /* SVGghDebuggingViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		21F6BBDD1B29A21E00DCEEC2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -656,6 +796,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		211CB3D41BD4346F00121DB4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 21F6BBE11B29A21E00DCEEC2 /* SVGgh */;
+			targetProxy = 211CB3D31BD4346F00121DB4 /* PBXContainerItemProxy */;
+		};
 		21309A4D1B29F9DF00E8B812 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 21F6BBE11B29A21E00DCEEC2 /* SVGgh */;
@@ -669,6 +814,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		21DEC8B31BAD89C90044BAD7 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				21DEC8B41BAD89C90044BAD7 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
 		21F6BC991B29A48600DCEEC2 /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -688,6 +841,41 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		21DEC8B91BAD89C90044BAD7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				INFOPLIST_FILE = "SVGgh TV Debugging App/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.genhelp.SVGgh-TV-Debugging-App";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = "SVGgh TV Debugging App/SVGgh TV Debugging App-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		21DEC8BA1BAD89C90044BAD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				INFOPLIST_FILE = "SVGgh TV Debugging App/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.genhelp.SVGgh-TV-Debugging-App";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = "SVGgh TV Debugging App/SVGgh TV Debugging App-Bridging-Header.h";
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
 		21F6BBF61B29A21E00DCEEC2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -731,6 +919,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "arm64 armv7 armv7s";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -774,6 +963,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s";
@@ -886,6 +1076,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		21DEC8BB1BAD89C90044BAD7 /* Build configuration list for PBXNativeTarget "SVGgh TV Debugging App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21DEC8B91BAD89C90044BAD7 /* Debug */,
+				21DEC8BA1BAD89C90044BAD7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		21F6BBDC1B29A21E00DCEEC2 /* Build configuration list for PBXProject "SVGgh" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -42,6 +42,22 @@
 const CGFloat kContentMargin = 10;
 
 
+typedef enum GHSegmentType
+{
+    kSegmentTypeRight,
+    kSegmentTypeMiddle,
+    kSegmentTypeLeft,
+    kSegmentTypeOnly
+}GHSegmentType;
+
+@class GHSegmentedControlContentView;
+
+@interface GHSegmentedControl()
+@property(nonatomic, strong) UIColor* segmentBackgroundColor;
+@property(nonatomic, weak) GHSegmentedControlContentView* contentView;
+@property(nonatomic, assign) BOOL beingPressed;
+@end
+
 
 @interface GHSegmentDefinition : NSObject
 @property(nonatomic, strong) NSString* title;
@@ -55,35 +71,37 @@ const CGFloat kContentMargin = 10;
 
 @end
 
-@interface GHSegmentedControlLayer : CALayer
-@property(nonatomic, strong) NSArray* definitions; //GHSegmentDefinition
+@interface GHSegmentedControlContentView: UIView
+@property(nonatomic, strong)        NSArray* definitions; //GHSegmentDefinition
 @property(nonatomic,getter=isMomentary) BOOL momentary;
-@property(nonatomic,readonly) NSUInteger numberOfSegments;
-@property(nonatomic) NSInteger selectedSegmentIndex;
-@property(nonatomic, assign) NSUInteger trackedSegmentIndex;
-@property(nonatomic, weak) GHSegmentedControl* control;
+@property(nonatomic)                NSInteger selectedSegmentIndex;
+@property(nonatomic, assign)        NSUInteger trackedSegmentIndex;
+@property(nonatomic, weak)          GHSegmentedControl* control;
+@property(nonatomic, readonly)      UIColor* selectedColor;
 
 +(UIFont*) titleFontForState:(UIControlState)state;
 
 @end
 
-typedef enum GHSegmentType
-{
-    kSegmentTypeRight,
-    kSegmentTypeMiddle,
-    kSegmentTypeLeft,
-    kSegmentTypeOnly
-}GHSegmentType;
 
-@interface GHSegmentedControlSegmentLayer : CALayer
+@class GHSegmentedControlSegmentView;
+
+
+@interface GHSegmentedControlSegmentView: UIView
 @property(nonatomic, assign) enum GHSegmentType segmentType;
 @property(nonatomic, strong) GHSegmentDefinition* segmentDefinition;
-@property(nonatomic, weak) CALayer* contentLayer;
 @property(nonatomic, strong) UIColor* currentColor;
 @property(nonatomic, assign) BOOL selected;
 @property(nonatomic, assign) BOOL isHighlighted;
+@property(nonatomic, weak) GHSegmentedControlContentView* parentContent;
 
 -(CGFloat) preferredWidthGivenHeight:(CGFloat)height;
+
+@end
+
+@interface GHSegmentLayer : CALayer
+@property(nonatomic, weak) CALayer* contentLayer;
+@property(nonatomic, weak) GHSegmentedControlSegmentView* segmentView;
 
 @end
 
@@ -94,8 +112,109 @@ typedef enum GHSegmentType
 @end
 
 
+@implementation GHSegmentLayer
+-(void) layoutSublayers
+{
+    GHSegmentedControlSegmentView* segmentView = self.segmentView;
+    if(self.contentLayer == nil)
+    {
+        if(segmentView.segmentDefinition.renderer != nil)
+        {
+            SVGRendererLayer* contentLayer = [[SVGRendererLayer alloc] init];
+            contentLayer.renderer = segmentView.segmentDefinition.renderer;
+            contentLayer.contentsGravity = kCAGravityResizeAspect;
+            contentLayer.defaultColor = segmentView.currentColor;
+            [self addSublayer:contentLayer];
+            self.contentLayer = contentLayer;
+        }
+        else if(self.segmentView.segmentDefinition.title.length)
+        {
+            CATextLayer* contentLayer = [[CATextLayer alloc] init];
+            contentLayer.string = segmentView.segmentDefinition.title;
+            contentLayer.truncationMode = kCATruncationEnd;
+            UIFont* textFont = [GHSegmentedControlContentView titleFontForState:UIControlStateNormal];
+            NSString* fontName = textFont.fontName;
+            CFStringRef fontNameCF = (__bridge CFStringRef)(fontName);
+            CGFontRef fontCG = CGFontCreateWithFontName(fontNameCF);
+            contentLayer.font = fontCG;
+            CGFontRelease(fontCG);
+            contentLayer.fontSize = textFont.pointSize;
+            contentLayer.foregroundColor = segmentView.currentColor?segmentView.currentColor.CGColor:[UIColor blackColor].CGColor;
+            contentLayer.contentsGravity = kCAGravityCenter;
+            contentLayer.alignmentMode = kCAAlignmentCenter;
+            
+            [self addSublayer:contentLayer];
+            self.contentLayer = contentLayer;
+        }
+        self.contentLayer.contentsScale = self.contentsScale;
+        self.contentLayer.backgroundColor = [UIColor clearColor].CGColor;
+        self.contentLayer.opaque = NO;
+        
+    }
+    
+    CGFloat inset = 2.0;
+    
+    if(segmentView.segmentDefinition.artInsetFraction > 0)
+    {
+        inset = self.bounds.size.height*segmentView.segmentDefinition.artInsetFraction;
+    }
+    
+    CGRect contentFrame = CGRectInset(self.bounds, inset, inset);
+    
+    if([self.contentLayer isKindOfClass:[CATextLayer class]])
+    {
+        CATextLayer* contentLayer = (CATextLayer*)self.contentLayer;
+        CGFontRef font = (CGFontRef)contentLayer.font;
+        CGFloat scalingFactor = contentLayer.fontSize/CGFontGetUnitsPerEm(font);
+        CGFloat ascent = CGFontGetAscent(font)*scalingFactor;
+        CGFloat descent = -1.0*CGFontGetDescent(font)*scalingFactor;
+        CGFloat centerY = self.bounds.size.height/2.0;
+        contentFrame = CGRectMake(contentFrame.origin.x, centerY-0.5*ascent, contentFrame.size.width, ascent+descent);
+        
+    }
+    
+    self.contentLayer.frame = contentFrame;
+}
 
-@implementation GHSegmentedControlSegmentLayer
+@end
+
+
+@implementation GHSegmentedControlSegmentView
+
++(Class)layerClass
+{
+    return [GHSegmentLayer class];
+}
+
+-(instancetype) initWithFrame:(CGRect)frame
+{
+    if(nil != (self = [super initWithFrame:frame]))
+    {
+#if !TARGET_OS_TV
+        self.userInteractionEnabled = NO;
+#endif
+    }
+    return self;
+}
+
+-(void)drawRect:(CGRect)rect
+{
+}
+
+-(GHSegmentLayer*) segmentLayer
+{
+    GHSegmentLayer* result = (GHSegmentLayer*)self.layer;
+    result.segmentView = self;
+    result.backgroundColor = [UIColor clearColor].CGColor;
+    result.opaque = NO;
+    return result;
+}
+
+-(CALayer*)contentLayer
+{
+    CALayer* result = self.segmentLayer.contentLayer;
+    return result;
+}
 
 -(CGFloat) preferredWidthGivenHeight:(CGFloat)height
 {
@@ -108,7 +227,7 @@ typedef enum GHSegmentType
     if(_segmentType != segmentType)
     {
         _segmentType = segmentType;
-        [self setNeedsDisplay];
+        [self.layer setNeedsDisplay];
     }
 }
 
@@ -132,68 +251,6 @@ typedef enum GHSegmentType
         }
         [self setNeedsDisplay];
     }
-}
-
--(void) layoutSublayers
-{
-    if(self.contentLayer == nil)
-    {
-        if(self.segmentDefinition.renderer != nil)
-        {
-            SVGRendererLayer* contentLayer = [[SVGRendererLayer alloc] init];
-            contentLayer.renderer = self.segmentDefinition.renderer;
-            contentLayer.contentsGravity = kCAGravityResizeAspect;
-            contentLayer.defaultColor = self.currentColor;
-            [self addSublayer:contentLayer];
-            self.contentLayer = contentLayer;
-        }
-        else if(self.segmentDefinition.title.length)
-        {
-            CATextLayer* contentLayer = [[CATextLayer alloc] init];
-            contentLayer.string = self.segmentDefinition.title;
-            contentLayer.truncationMode = kCATruncationEnd;
-            UIFont* textFont = [GHSegmentedControlLayer titleFontForState:UIControlStateNormal];
-            NSString* fontName = textFont.fontName;
-            CFStringRef fontNameCF = (__bridge CFStringRef)(fontName);
-            CGFontRef fontCG = CGFontCreateWithFontName(fontNameCF);
-            contentLayer.font = fontCG;
-            CGFontRelease(fontCG);
-            contentLayer.fontSize = textFont.pointSize;
-            contentLayer.foregroundColor = self.currentColor?self.currentColor.CGColor:[UIColor blackColor].CGColor;
-            contentLayer.contentsGravity = kCAGravityCenter;
-            contentLayer.alignmentMode = kCAAlignmentCenter;
-            
-            [self addSublayer:contentLayer];
-            self.contentLayer = contentLayer;
-        }
-        self.contentLayer.contentsScale = self.contentsScale;
-        self.contentLayer.backgroundColor = [UIColor clearColor].CGColor;
-        self.contentLayer.opaque = NO;
-        
-    }
-    
-    CGFloat inset = 2.0;
-    
-    if(self.segmentDefinition.artInsetFraction > 0)
-    {
-        inset = self.bounds.size.height*self.segmentDefinition.artInsetFraction;
-    }
-    
-    CGRect contentFrame = CGRectInset(self.bounds, inset, inset);
-    
-    if([self.contentLayer isKindOfClass:[CATextLayer class]])
-    {
-        CATextLayer* contentLayer = (CATextLayer*)self.contentLayer;
-        CGFontRef font = (CGFontRef)contentLayer.font;
-        CGFloat scalingFactor = contentLayer.fontSize/CGFontGetUnitsPerEm(font);
-        CGFloat ascent = CGFontGetAscent(font)*scalingFactor;
-        CGFloat descent = -1.0*CGFontGetDescent(font)*scalingFactor;
-        CGFloat centerY = self.bounds.size.height/2.0;
-        contentFrame = CGRectMake(contentFrame.origin.x, centerY-0.5*ascent, contentFrame.size.width, ascent+descent);
-        
-    }
-    
-    self.contentLayer.frame = contentFrame;
 }
 
 
@@ -278,6 +335,158 @@ typedef enum GHSegmentType
 }
 
 
+-(void) drawLayer:(CALayer *)layer inContext:(CGContextRef)quartzContext
+{
+    CGRect myBounds = layer.bounds;
+    CGContextSaveGState(quartzContext);
+    BOOL drawRing = YES;
+    BOOL    inNormalMode = !self.selected;
+    GHSegmentedControl* control = self.parentContent.control;
+    ColorScheme scheme = control.scheme;
+    
+    
+    CGContextSaveGState(quartzContext);
+    CGContextClearRect(quartzContext, myBounds);
+    
+    if(scheme == kColorSchemeEmpty || scheme == kColorSchemeFlatAndBoxy || scheme == kColorSchemeTVOS) // approximate an iOS 7 segmented control
+    {
+        UIColor* baseColor = [self.parentContent selectedColor];
+        
+        CGContextSetStrokeColorWithColor(quartzContext, baseColor.CGColor);
+        
+        if(scheme == kColorSchemeTVOS)
+        {
+            if(self.isHighlighted)
+            {
+                CGContextSetFillColorWithColor(quartzContext, [UIColor whiteColor].CGColor);
+            }
+            else if(inNormalMode || !control.selected)
+            {
+                CGContextSetFillColorWithColor(quartzContext, control.backgroundColor.CGColor);
+            }
+            else
+            {
+                CGContextSetFillColorWithColor(quartzContext, baseColor.CGColor);
+            }
+            
+            CGPathRef   boundingPath = [self newOutlinePathWhileUsingRadialGradient:YES];
+            CGContextAddPath(quartzContext, boundingPath);
+            CGContextDrawPath(quartzContext, kCGPathFill);
+            CGPathRelease(boundingPath);
+        }
+        else
+        {
+            if(inNormalMode)
+            {
+                CGContextSetFillColorWithColor(quartzContext, control.backgroundColor.CGColor);
+            }
+            else
+            {
+                CGContextSetFillColorWithColor(quartzContext, baseColor.CGColor);
+            }
+            
+            CGFloat lineWidth = 1/self.layer.contentsScale;
+            
+            CGContextSetLineWidth(quartzContext, lineWidth);
+            if(scheme == kColorSchemeEmpty)
+            {
+                CGPathRef   boundingPath = [self newOutlinePathWhileUsingRadialGradient:NO];
+                CGContextAddPath(quartzContext, boundingPath);
+                CGContextDrawPath(quartzContext, kCGPathFillStroke);
+                CGPathRelease(boundingPath);
+            }
+            else
+            {
+                CGContextAddRect(quartzContext, myBounds);
+                CGContextDrawPath(quartzContext, kCGPathFillStroke);
+            }
+        }
+    }
+    else
+    {
+        CGPathRef   boundingPath = [self newOutlinePathWhileUsingRadialGradient:control.useRadialGradient];
+        CGContextAddPath(quartzContext, boundingPath);
+        CGGradientRef   gradientToUse = 0;
+        if(self.selected)
+        {
+            gradientToUse = control.faceGradientSelected;
+        }
+        else if(self.isHighlighted)
+        {
+            gradientToUse = control.faceGradientPressed;
+        }
+        else
+        {
+            gradientToUse = control.faceGradient;
+        }
+        
+        NSAssert((gradientToUse != 0), @"GHControl: Not setup properly");
+        
+        // draw subtly gradiented interior
+        CGRect interiorRect = control.useRadialGradient?myBounds:CGRectInset(myBounds, kRingThickness, kRingThickness);
+        
+        if(control.showShadow)
+        {
+            drawRing = NO;
+        }
+        
+        
+        CGContextClip(quartzContext);
+        
+        CGPoint topPoint = myBounds.origin;
+        CGPoint bottomPoint = CGPointMake(myBounds.origin.x, myBounds.origin.y+myBounds.size.height);
+        if(control.useRadialGradient)
+        {
+            CGContextSaveGState(quartzContext);
+            CGContextTranslateCTM(quartzContext, interiorRect.origin.x, interiorRect.origin.y);
+            CGContextScaleCTM(quartzContext, interiorRect.size.width, interiorRect.size.height);
+            CGContextScaleCTM(quartzContext, 1.0, .5);
+            
+            CGFloat startRadius = .2;
+            CGFloat endRadius = 1.0;
+            CGPoint startPoint = CGPointMake(.1, .2);
+            CGContextDrawRadialGradient(quartzContext,gradientToUse,
+                                        startPoint, startRadius,
+                                        startPoint, endRadius, kCGGradientDrawsBeforeStartLocation | kCGGradientDrawsAfterEndLocation);
+            CGContextRestoreGState(quartzContext);
+            CGPathRef interiorRingPath = [self newInteriorRingPahtWhileUsingRadialGradient:control.useRadialGradient];
+            CGContextSetLineWidth(quartzContext, 1/self.layer.contentsScale);
+            if(inNormalMode)
+            {
+                CGContextSetStrokeColorWithColor(quartzContext, [[UIColor darkGrayColor] colorWithAlphaComponent:0.5].CGColor);
+            }
+            else
+            {
+                CGContextSetStrokeColorWithColor(quartzContext, control.ringColor.CGColor);
+            }
+            CGContextAddPath(quartzContext, interiorRingPath);
+            CGContextStrokePath(quartzContext);
+            CGPathRelease(interiorRingPath);
+            drawRing = NO;
+        }
+        else
+        {
+            CGContextDrawLinearGradient(quartzContext,gradientToUse, topPoint, bottomPoint, 0);
+        }
+        
+        CGContextRestoreGState(quartzContext);
+        
+        CGPathRelease(boundingPath);
+        if(drawRing)
+        {
+            CGPathRef exteriorRingPath = [self newExteriorRingPath];
+            CGContextSetLineWidth(quartzContext, 1/self.layer.contentsScale);
+            CGContextSetStrokeColorWithColor(quartzContext, control.ringColor.CGColor);
+            
+            CGContextAddPath(quartzContext, exteriorRingPath);
+            CGContextStrokePath(quartzContext);
+            CGPathRelease(exteriorRingPath);
+        }
+    }
+    
+    CGContextRestoreGState(quartzContext);
+}
+
 @end
 
 
@@ -298,7 +507,7 @@ typedef enum GHSegmentType
         }
         else if(self.title.length)
         {
-            UIFont* textFont = [GHSegmentedControlLayer titleFontForState:UIControlStateNormal];
+            UIFont* textFont = [GHSegmentedControlContentView titleFontForState:UIControlStateNormal];
             NSDictionary* fontAttributes = @{NSFontAttributeName:textFont};
             result = ceil([self.title sizeWithAttributes:fontAttributes].width);
             
@@ -332,7 +541,7 @@ typedef enum GHSegmentType
 @property(nonatomic, strong) NSArray* definitions; //GHSegmentDefinition
 @end
 
-@implementation GHSegmentedControlLayer
+@implementation GHSegmentedControlContentView
 
 +(UIFont*) titleFontForState:(UIControlState)state
 {
@@ -340,7 +549,11 @@ typedef enum GHSegmentType
     NSDictionary* titleProperties = [[UISegmentedControl appearance] titleTextAttributesForState:state];
     if(titleProperties == nil) // iOS 9 stopped returning the titleProperties from UISegmentedControl appearance
     {
+#if TARGET_OS_TV
+        result = [UIFont systemFontOfSize:40 weight:UIFontWeightMedium];
+#else
         result = [UIFont systemFontOfSize:14];
+#endif
     }
     else
     {
@@ -350,16 +563,18 @@ typedef enum GHSegmentType
     return result;
 }
 
+
+
 -(NSInteger) indexOfTouch:(CGPoint)touchLocation
 {
     NSInteger result = NSNotFound;
     NSInteger index = 0;
-    for(CALayer* aLayer in self.sublayers)
+    for(UIView* aView in self.subviews)
     {
-        if([aLayer isKindOfClass:[GHSegmentedControlSegmentLayer class]])
+        if([aView isKindOfClass:[GHSegmentedControlSegmentView class]])
         {
-            CGPoint layersPoint = [self convertPoint:touchLocation toLayer:aLayer];
-            if([aLayer containsPoint:layersPoint])
+            CGPoint viewsPoint = [self convertPoint:touchLocation toView:aView];
+            if(CGRectContainsPoint(aView.bounds, viewsPoint))
             {
                 result = index;
                 break;
@@ -375,13 +590,13 @@ typedef enum GHSegmentType
 {
     CGRect result = CGRectZero;
     NSInteger index = 0;
-    for(CALayer* aLayer in self.sublayers)
+    for(UIView* aView in self.subviews)
     {
-        if([aLayer isKindOfClass:[GHSegmentedControlSegmentLayer class]])
+        if([aView isKindOfClass:[GHSegmentedControlSegmentView class]])
         {
             if(testIndex == index)
             {
-                result = aLayer.frame;
+                result = aView.frame;
                 break;
             }
             index++;
@@ -391,26 +606,26 @@ typedef enum GHSegmentType
 }
 
 
--(void) syncSubLayerTypes
+-(void) syncSubViewTypes
 {
-    NSArray* subLayers = self.sublayers;
-    for (NSUInteger index = 0; index < subLayers.count; index++) {
-        GHSegmentedControlSegmentLayer* aSubLayer = [subLayers objectAtIndex:index];
-        if(subLayers.count == 1)
+    NSArray<UIView *>* subViews = self.subviews;
+    for (NSUInteger index = 0; index < subViews.count; index++) {
+        GHSegmentedControlSegmentView* aSubview = (GHSegmentedControlSegmentView*)[subViews objectAtIndex:index];
+        if(subViews.count == 1)
         {
-            aSubLayer.segmentType = kSegmentTypeOnly;
+            aSubview.segmentType = kSegmentTypeOnly;
         }
         else if(index == 0)
         {
-            aSubLayer.segmentType = kSegmentTypeLeft;
+            aSubview.segmentType = kSegmentTypeLeft;
         }
-        else if(index == (subLayers.count-1))
+        else if(index == (subViews.count-1))
         {
-            aSubLayer.segmentType = kSegmentTypeRight;
+            aSubview.segmentType = kSegmentTypeRight;
         }
         else
         {
-            aSubLayer.segmentType = kSegmentTypeMiddle;
+            aSubview.segmentType = kSegmentTypeMiddle;
         }
     }
 }
@@ -418,36 +633,36 @@ typedef enum GHSegmentType
 -(void) insertDefinition:(GHSegmentDefinition*)aDefinition atIndex:(NSUInteger)segment animated:(BOOL)animated
 {
     NSMutableArray* newDefinitions = (self.definitions.count)?[self.definitions mutableCopy]:[NSMutableArray new];
-    GHSegmentedControlSegmentLayer* newLayer = [[GHSegmentedControlSegmentLayer alloc] init];
-    newLayer.segmentDefinition = aDefinition;
-    newLayer.delegate = self;
+    GHSegmentedControlSegmentView* newView = [[GHSegmentedControlSegmentView alloc] initWithFrame:CGRectZero];
+    newView.segmentDefinition = aDefinition;
+    newView.parentContent = self;
     CGRect startRect = CGRectMake(0, 0, 0, self.bounds.size.height);
     if(newDefinitions.count == segment)
     {
         [newDefinitions addObject:aDefinition];
         startRect.origin.x = self.bounds.size.width;
-        newLayer.frame = startRect;
-        [self addSublayer:newLayer];
+        newView.frame = startRect;
+        [self addSubview:newView];
     }
     else if (segment == 0)
     {
-        newLayer.frame = startRect;
-        [self insertSublayer:newLayer atIndex:0];
+        newView.frame = startRect;
+        [self insertSubview:newView atIndex:0];
     }
     else if(newDefinitions.count > segment)
     {
         [newDefinitions insertObject:aDefinition atIndex:segment];
-        GHSegmentedControlSegmentLayer* leftSegmentLayer = (GHSegmentedControlSegmentLayer*)[self.sublayers objectAtIndex:segment];
+        GHSegmentedControlSegmentView* leftSegmentLayer = (GHSegmentedControlSegmentView*)[self.subviews objectAtIndex:segment];
         startRect.origin.x = leftSegmentLayer.frame.origin.x+leftSegmentLayer.frame.size.width;
         
-        newLayer.frame = startRect;
-        [self insertSublayer:newLayer atIndex:(unsigned)segment];
+        newView.frame = startRect;
+        [self insertSubview:newView atIndex:(unsigned)segment];
     }
     
     if(self.definitions.count <= segment)
     {
         self.definitions = [newDefinitions copy];
-        [self syncSubLayerTypes];
+        [self syncSubViewTypes];
         [self setNeedsLayout];
     }
 }
@@ -458,11 +673,11 @@ typedef enum GHSegmentType
     if(segment < newDefinitions.count)
     {
         [newDefinitions removeObjectAtIndex:segment];
-        NSArray* subLayers = self.sublayers;
-        if(subLayers.count > segment)
+        NSArray<UIView*>* subViews = self.subviews;
+        if(subViews.count > segment)
         {
-            CALayer* layerToRemove = [subLayers objectAtIndex:segment];
-            [layerToRemove removeFromSuperlayer];
+            UIView* viewToRemove = [subViews objectAtIndex:segment];
+            [viewToRemove removeFromSuperview];
         }
         [self setNeedsLayout];
     }
@@ -512,42 +727,41 @@ typedef enum GHSegmentType
 -(void) syncSelectedIndex
 {
     NSInteger index = 0;
-    for(CALayer* aLayer in self.sublayers)
+    for(UIView* aView in self.subviews)
     {
-        if([aLayer isKindOfClass:[GHSegmentedControlSegmentLayer class]])
+        if([aView isKindOfClass:[GHSegmentedControlSegmentView class]])
         {
-            GHSegmentedControlSegmentLayer* segmentLayer = (GHSegmentedControlSegmentLayer*)aLayer;
+            GHSegmentedControlSegmentView* segmentView = (GHSegmentedControlSegmentView*)aView;
             UIColor* currentColor = nil;
             if(self.selectedSegmentIndex == index)
             {
                 currentColor = [self.control textColorPressed];
-                segmentLayer.selected = YES;
+                segmentView.selected = YES;
             }
             else
             {
                 currentColor = [self.control textColor];
-                segmentLayer.selected = NO;
+                segmentView.selected = NO;
             }
-            segmentLayer.currentColor = currentColor;
+            segmentView.currentColor = currentColor;
             index++;
         }
     }
 }
 
--(void) layoutSublayers
+-(void) layoutSubviews
 {
-    if(self.sublayers.count == 0)
+    [super layoutSubviews];
+    if(self.subviews.count == 0)
     {
         for(GHSegmentDefinition* aDefinition in self.definitions)
         {
-            GHSegmentedControlSegmentLayer* newLayer = [[GHSegmentedControlSegmentLayer alloc] init];
-            newLayer.segmentDefinition = aDefinition;
-            newLayer.delegate = self;
-            newLayer.contentsScale = self.contentsScale;
-            newLayer.delegate = self;
-            [self addSublayer:newLayer];
+            GHSegmentedControlSegmentView* newView = [[GHSegmentedControlSegmentView alloc] initWithFrame:CGRectZero];
+            newView.segmentDefinition = aDefinition;
+            newView.parentContent = self;
+            [self addSubview:newView];
         }
-        [self syncSubLayerTypes];
+        [self syncSubViewTypes];
         [self syncSelectedIndex];
     }
     CGFloat x = 0.0;
@@ -555,17 +769,39 @@ typedef enum GHSegmentType
     CGFloat extraWidth = floor(self.bounds.size.width - wantedWidth);
     CGFloat extraWidthPerSegment = floor((self.definitions.count > 0)?extraWidth/self.definitions.count:0.0);
     
-    for(GHSegmentedControlSegmentLayer* aLayer in self.sublayers)
+    for(GHSegmentedControlSegmentView* aView in self.subviews)
     {
-        if([aLayer isKindOfClass:[GHSegmentedControlSegmentLayer class]])
+        if([aView isKindOfClass:[GHSegmentedControlSegmentView class]])
         {
-            CGFloat segmentWidth = floor([aLayer.segmentDefinition preferredWidthGivenHeight:self.bounds.size.height] + extraWidthPerSegment);
+            CGFloat segmentWidth = floor([aView.segmentDefinition preferredWidthGivenHeight:self.bounds.size.height] + extraWidthPerSegment);
             CGRect segmentFrame = CGRectMake(x, 0, segmentWidth, self.bounds.size.height);
-            aLayer.frame = segmentFrame;
+            aView.frame = segmentFrame;
             x += floor(segmentWidth);
-            
-            [aLayer setNeedsDisplay];
-            [aLayer setNeedsLayout];
+            [aView setNeedsDisplay];
+        }
+    }
+    if(x < self.bounds.size.width && self.subviews.count)
+    {
+        CGFloat extra = self.bounds.size.width-x;
+        CGFloat extraPer = floor(extra/self.subviews.count);
+        CGFloat remainder = extra-extraPer*self.subviews.count;
+        x = 0.0;
+        for(GHSegmentedControlSegmentView* aView in self.subviews)
+        {
+            if([aView isKindOfClass:[GHSegmentedControlSegmentView class]])
+            {
+                CGRect newViewFrame = aView.frame;
+                newViewFrame.origin.x = x;
+                newViewFrame.size.width += extraPer;
+                if(remainder >= 1.0)
+                {
+                    newViewFrame.size.width += 1.0;
+                    remainder -= 1.0;
+                }
+                x = newViewFrame.origin.x+newViewFrame.size.width;
+                aView.frame = newViewFrame;
+                [aView setNeedsDisplay];
+            }
         }
     }
 }
@@ -589,131 +825,8 @@ typedef enum GHSegmentType
 
 }
 
-- (void)drawLayer:(GHSegmentedControlSegmentLayer *)layer inContext:(CGContextRef)quartzContext
+-(void)drawRect:(CGRect)rect
 {
-    CGRect layerBounds = layer.bounds;
-    CGContextSaveGState(quartzContext);
-    BOOL drawRing = YES;
-    BOOL    inNormalMode = !layer.selected;
-    ColorScheme scheme = self.control.scheme;
-    
-    
-    CGContextSaveGState(quartzContext);
-    
-    if(scheme == kColorSchemeEmpty || scheme == kColorSchemeFlatAndBoxy) // approximate an iOS 7 segmented control
-    {
-        UIColor* baseColor = [self selectedColor];
-        
-        CGContextSetStrokeColorWithColor(quartzContext, baseColor.CGColor);
-        if(inNormalMode)
-        {
-            CGContextSetFillColorWithColor(quartzContext, self.control.backgroundColor.CGColor);
-        }
-        else
-        {
-            CGContextSetFillColorWithColor(quartzContext, baseColor.CGColor);
-        }
-        CGFloat lineWidth = 1/self.contentsScale;
-        
-        CGContextSetLineWidth(quartzContext, lineWidth);
-        if(scheme == kColorSchemeEmpty)
-        {
-            CGPathRef   boundingPath = [layer newOutlinePathWhileUsingRadialGradient:NO];
-            CGContextAddPath(quartzContext, boundingPath);
-            CGContextDrawPath(quartzContext, kCGPathFillStroke);
-            CGPathRelease(boundingPath);
-        }
-        else
-        {
-            CGRect drawBounds = CGRectInset(layerBounds, 0, 0);
-            CGContextAddRect(quartzContext, drawBounds);
-            CGContextDrawPath(quartzContext, kCGPathFillStroke);
-        }
-    }
-    else
-    {
-        
-        CGPathRef   boundingPath = [layer newOutlinePathWhileUsingRadialGradient:self.control.useRadialGradient];
-        CGContextAddPath(quartzContext, boundingPath);
-        CGGradientRef   gradientToUse = 0;
-        if(layer.selected)
-        {
-            gradientToUse = self.control.faceGradientSelected;
-        }
-        else if(layer.isHighlighted)
-        {
-            gradientToUse = self.control.faceGradientPressed;
-        }
-        else
-        {
-            gradientToUse = self.control.faceGradient;
-        }
-        
-        NSAssert((gradientToUse != 0), @"GHControl: Not setup properly");
-        
-        // draw subtly gradiented interior
-        CGRect interiorRect = self.control.useRadialGradient?layerBounds:CGRectInset(layerBounds, kRingThickness, kRingThickness);
-        
-        if(self.control.showShadow)
-        {
-            drawRing = NO;
-        }
-        
-        
-        CGContextClip(quartzContext);
-        
-        CGPoint topPoint = layerBounds.origin;
-        CGPoint bottomPoint = CGPointMake(layerBounds.origin.x, layerBounds.origin.y+layerBounds.size.height);
-        if(self.control.useRadialGradient)
-        {
-            CGContextSaveGState(quartzContext);
-            CGContextTranslateCTM(quartzContext, interiorRect.origin.x, interiorRect.origin.y);
-            CGContextScaleCTM(quartzContext, interiorRect.size.width, interiorRect.size.height);
-            CGContextScaleCTM(quartzContext, 1.0, .5);
-            
-            CGFloat startRadius = .2;
-            CGFloat endRadius = 1.0;
-            CGPoint startPoint = CGPointMake(.1, .2);
-            CGContextDrawRadialGradient(quartzContext,gradientToUse,
-                                        startPoint, startRadius,
-                                        startPoint, endRadius, kCGGradientDrawsBeforeStartLocation | kCGGradientDrawsAfterEndLocation);
-            CGContextRestoreGState(quartzContext);
-            CGPathRef interiorRingPath = [layer newInteriorRingPahtWhileUsingRadialGradient:self.control.useRadialGradient];
-            CGContextSetLineWidth(quartzContext, 1/self.contentsScale);
-            if(inNormalMode)
-            {
-                CGContextSetStrokeColorWithColor(quartzContext, [[UIColor darkGrayColor] colorWithAlphaComponent:0.5].CGColor);
-            }
-            else
-            {
-                CGContextSetStrokeColorWithColor(quartzContext, self.control.ringColor.CGColor);
-            }
-            CGContextAddPath(quartzContext, interiorRingPath);
-            CGContextStrokePath(quartzContext);
-            CGPathRelease(interiorRingPath);
-            drawRing = NO;
-        }
-        else
-        {
-            CGContextDrawLinearGradient(quartzContext,gradientToUse, topPoint, bottomPoint, 0);
-        }
-        
-        CGContextRestoreGState(quartzContext);
-        
-        CGPathRelease(boundingPath);
-        if(drawRing)
-        {
-            CGPathRef exteriorRingPath = [layer newExteriorRingPath];
-            CGContextSetLineWidth(quartzContext, 1/self.contentsScale);
-            CGContextSetStrokeColorWithColor(quartzContext, self.control.ringColor.CGColor);
-            
-            CGContextAddPath(quartzContext, exteriorRingPath);
-            CGContextStrokePath(quartzContext);
-            CGPathRelease(exteriorRingPath);
-        }
-    }
-    
-    CGContextRestoreGState(quartzContext);
 }
 
 @end
@@ -725,17 +838,13 @@ typedef enum GHSegmentType
 {
 }
 
-+(Class) layerClass
+-(void)setupForScheme:(NSUInteger)aScheme
 {
-    return [GHSegmentedControlLayer class];
+    [super setupForScheme:aScheme];
+    [self setNeedsDisplay];
+    self.layer.opaque = NO;
 }
 
--(GHSegmentedControlLayer*)layerAsControlLayer
-{
-    GHSegmentedControlLayer* result =  (GHSegmentedControlLayer*)self.layer;
-    result.control = self;
-    return result;
-}
 
 - (instancetype)initWithItems:(NSArray *)items
 {
@@ -817,7 +926,7 @@ typedef enum GHSegmentType
         if(animated)
         {
             _definitions = [mutableDefinitions copy];
-            [self.layerAsControlLayer insertDefinition:newDefinition atIndex:segment animated:animated];
+            [self.contentView insertDefinition:newDefinition atIndex:segment animated:animated];
         }
         else
         {
@@ -845,6 +954,11 @@ typedef enum GHSegmentType
     }
 }
 
+-(NSUInteger) numberOfSegments
+{
+    return self.definitions.count;
+}
+
 - (void)insertSegmentWithRenderer:(SVGRenderer *)renderer accessibilityLabel:(nullable NSString*)accessibilityLabel  atIndex:(NSUInteger)segment animated:(BOOL)animated;
 {
     if(segment <= self.definitions.count)
@@ -860,7 +974,7 @@ typedef enum GHSegmentType
         if(animated)
         {
             _definitions = [mutableDefinitions copy];
-            [self.layerAsControlLayer insertDefinition:newDefinition atIndex:segment animated:animated];
+            [self.contentView insertDefinition:newDefinition atIndex:segment animated:animated];
         }
         else
         {
@@ -879,7 +993,7 @@ typedef enum GHSegmentType
         if(animated)
         {
             _definitions = [mutableDefinitions copy];
-            [self.layerAsControlLayer removeSegmentAtIndex:segment animated:YES];
+            [self.contentView removeSegmentAtIndex:segment animated:YES];
         }
         else
         {
@@ -888,6 +1002,7 @@ typedef enum GHSegmentType
         [self invalidateAccessibility];
     }
 }
+
 
 - (void)removeAllSegments
 {
@@ -902,7 +1017,7 @@ typedef enum GHSegmentType
         GHSegmentDefinition* definition = [self.definitions objectAtIndex:segment];
         definition.renderer = nil;
         definition.title = title;
-        [self.layerAsControlLayer updateSegmentAtIndex:segment withDefinition:definition];
+        [self.contentView updateSegmentAtIndex:segment withDefinition:definition];
     }
     [self invalidateAccessibility];
 }
@@ -926,7 +1041,7 @@ typedef enum GHSegmentType
         GHSegmentDefinition* definition = [self.definitions objectAtIndex:segment];
         definition.title = nil;
         definition.renderer = renderer;
-        [self.layerAsControlLayer updateSegmentAtIndex:segment withDefinition:definition];
+        [self.contentView updateSegmentAtIndex:segment withDefinition:definition];
     }
     [self invalidateAccessibility];
 }
@@ -949,7 +1064,7 @@ typedef enum GHSegmentType
     {
         GHSegmentDefinition* definition = [self.definitions objectAtIndex:segment];
         definition.accessibilityLabel = accessibilityLabel;
-        [self.layerAsControlLayer updateSegmentAtIndex:segment withDefinition:definition];
+        [self.contentView updateSegmentAtIndex:segment withDefinition:definition];
     }
     [self invalidateAccessibility];
 }
@@ -972,7 +1087,7 @@ typedef enum GHSegmentType
     {
         GHSegmentDefinition* definition = [self.definitions objectAtIndex:segment];
         definition.width = width;
-        [self.layerAsControlLayer updateSegmentAtIndex:segment withDefinition:definition];
+        [self.contentView updateSegmentAtIndex:segment withDefinition:definition];
     }
 }
 
@@ -993,7 +1108,7 @@ typedef enum GHSegmentType
     {
         GHSegmentDefinition* definition = [self.definitions objectAtIndex:segment];
         definition.enabled = enabled;
-        [self.layerAsControlLayer updateSegmentAtIndex:segment withDefinition:definition];
+        [self.contentView updateSegmentAtIndex:segment withDefinition:definition];
         
         NSArray* accessibilityElements = [super accessibilityElements];
         if(accessibilityElements.count > segment)
@@ -1023,12 +1138,9 @@ typedef enum GHSegmentType
 }
 
 
-- (void)drawRect:(CGRect)rect {
-}
-
 - (CGSize)intrinsicContentSize
 {
-    UIFont* font = [GHSegmentedControlLayer titleFontForState:UIControlStateNormal];
+    UIFont* font = [GHSegmentedControlContentView titleFontForState:UIControlStateNormal];
     CGSize result = CGSizeMake(kContentMargin*2.0, font.lineHeight+kContentMargin*2.0);
     if(self.apportionsSegmentWidthsByContent)
     {
@@ -1055,10 +1167,37 @@ typedef enum GHSegmentType
     return result;
 }
 
+-(GHSegmentedControlContentView*)contentView
+{
+    GHSegmentedControlContentView* result = _contentView;
+    if(result == nil)
+    {
+        _contentView = result = [[GHSegmentedControlContentView alloc] initWithFrame:self.bounds];
+        result.control = self;
+        result.opaque = NO;
+        result.backgroundColor = [UIColor clearColor];
+        result.userInteractionEnabled = NO;
+        result.definitions = self.definitions;
+        [result setNeedsLayout];
+        self.opaque = NO;
+        [self addSubview:result];
+    }
+    return result;
+}
+
+-(void) layoutSubviews
+{
+    [super layoutSubviews];
+    self.contentView.frame = self.bounds;
+    [self.contentView setNeedsDisplay];
+    [self.contentView setNeedsLayout];
+}
+
+
 -(void) setDefinitions:(NSArray *)definitions
 {
     _definitions = definitions;
-    self.layerAsControlLayer.definitions = definitions;
+    self.contentView.definitions = definitions;
     if([self respondsToSelector:@selector(invalidateIntrinsicContentSize)])
     {
         [self invalidateIntrinsicContentSize];
@@ -1068,7 +1207,7 @@ typedef enum GHSegmentType
 -(void) setSelectedSegmentIndex:(NSInteger)selectedSegmentIndex
 {
     _selectedSegmentIndex = selectedSegmentIndex;
-    self.layerAsControlLayer.selectedSegmentIndex = selectedSegmentIndex;
+    self.contentView.selectedSegmentIndex = selectedSegmentIndex;
     NSArray* accessibilityElements = [super accessibilityElements];
     if(accessibilityElements.count > selectedSegmentIndex)
     {
@@ -1090,7 +1229,7 @@ typedef enum GHSegmentType
 
 -(NSInteger) indexOfTouch:(CGPoint)touchLocation
 {
-    NSInteger result = [self.layerAsControlLayer indexOfTouch:touchLocation];
+    NSInteger result = [self.contentView indexOfTouch:touchLocation];
     return result;
 }
 
@@ -1098,13 +1237,15 @@ typedef enum GHSegmentType
 -(void) updateTracking:(UITouch*)touch
 {
     CGPoint localPoint = [touch locationInView:self];
-    NSInteger hitSegment = [self.layerAsControlLayer indexOfTouch:localPoint];
+    NSInteger hitSegment = [self.contentView indexOfTouch:localPoint];
     
-    if(self.layerAsControlLayer.trackedSegmentIndex != hitSegment)
+    if(self.contentView.trackedSegmentIndex != hitSegment)
     {
-        self.layerAsControlLayer.trackedSegmentIndex = hitSegment;
+        self.contentView.trackedSegmentIndex = hitSegment;
     }
 }
+
+#if !TARGET_OS_TV
 
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
 {
@@ -1124,24 +1265,25 @@ typedef enum GHSegmentType
 
 - (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
 {
-    NSInteger trackedSegmentIndex = self.layerAsControlLayer.trackedSegmentIndex;
+    NSInteger trackedSegmentIndex = self.contentView.trackedSegmentIndex;
     if(trackedSegmentIndex == NSNotFound)
     {
     }
-    else if(trackedSegmentIndex != self.layerAsControlLayer.selectedSegmentIndex)
+    else if(trackedSegmentIndex != self.contentView.selectedSegmentIndex)
     {
         self.selectedSegmentIndex = trackedSegmentIndex;
         [self sendActionsForControlEvents:UIControlEventValueChanged];
     }
-    self.layerAsControlLayer.trackedSegmentIndex = NSNotFound;
+    self.contentView.trackedSegmentIndex = NSNotFound;
     [super endTrackingWithTouch:touch withEvent:event];
 }
 
 - (void)cancelTrackingWithEvent:(UIEvent *)event
 {
-    self.layerAsControlLayer.trackedSegmentIndex = NSNotFound;
+    self.contentView.trackedSegmentIndex = NSNotFound;
     [super cancelTrackingWithEvent:event];
 }
+#endif
 
 - (BOOL)isAccessibilityElement
 {
@@ -1172,7 +1314,7 @@ typedef enum GHSegmentType
     if(index >= 0 && index < self.definitions.count)
     {
         result = [[GHSegmentedControlAccessibilityWrapper alloc] initWithAccessibilityContainer:self];
-        CGRect localFrame = [self.layerAsControlLayer frameForSegmentAtIndex:index];
+        CGRect localFrame = [self.contentView frameForSegmentAtIndex:index];
         result.accessibilityFrame = UIAccessibilityConvertFrameToScreenCoordinates(localFrame, self);
         result.index = index;
         result.segmentDefinition = [self.definitions objectAtIndex:index];
@@ -1227,6 +1369,7 @@ typedef enum GHSegmentType
     if(self.selectedSegmentIndex < self.definitions.count-1)
     {
         [self setSelectedSegmentIndex:self.selectedSegmentIndex+1];
+        [self sendActionsForControlEvents:UIControlEventValueChanged];
     }
 }
 
@@ -1235,9 +1378,18 @@ typedef enum GHSegmentType
     if(self.selectedSegmentIndex > 0 && self.definitions.count > 0)
     {
         [self setSelectedSegmentIndex:self.selectedSegmentIndex-1];
+        [self sendActionsForControlEvents:UIControlEventValueChanged];
     }
 }
 
+-(void) drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx
+{
+    CGContextClearRect(ctx, self.bounds);
+}
+
+-(void)drawRect:(CGRect)rect
+{
+}
 
 @end
 
@@ -1250,10 +1402,212 @@ typedef enum GHSegmentType
     if([self.accessibilityContainer isKindOfClass:[GHSegmentedControl class]])
     {
         GHSegmentedControl* myControl = self.accessibilityContainer;
-        CGRect localFrame = [myControl.layerAsControlLayer frameForSegmentAtIndex:self.index];
+        CGRect localFrame = [myControl.contentView frameForSegmentAtIndex:self.index];
         result = UIAccessibilityConvertFrameToScreenCoordinates(localFrame, myControl);;
     }
     
     return result;
 }
 @end
+
+
+#if TARGET_OS_TV
+#pragma mark tvOS
+@interface GHSegmentedControl(tvOS)
+@end
+
+@interface GHSegmentedControlContentView(tvOS)
+-(void) syncFocus;
+@end
+
+@interface GHSegmentedControlSegmentView (tvOS)
+
+@end
+
+@implementation GHSegmentedControlSegmentView(tvOS)
+
+-(BOOL) canBecomeFocused
+{
+    return self.parentContent.control.enabled;
+}
+
+- (void)updateFocusIfNeeded
+{
+    
+    [self setNeedsDisplay];
+}
+
+- (BOOL)shouldUpdateFocusInContext:(UIFocusUpdateContext *)context
+{
+    BOOL result =  NO;
+    if(context.nextFocusedView == self)
+    {
+        result = YES;
+        self.layer.shadowOffset = CGSizeMake(0, 10);
+        self.layer.shadowOpacity = 0.6;
+        self.layer.shadowRadius = 15;
+        self.layer.cornerRadius = 6.0;
+        self.layer.shadowColor = [UIColor blackColor].CGColor;
+        if(context.focusHeading == UIFocusHeadingRight)
+        {
+            [self.parentContent.control accessibilityIncrement];
+            [self.parentContent.control setNeedsFocusUpdate];
+        }
+        else if(context.focusHeading == UIFocusHeadingLeft)
+        {
+            [self.parentContent.control accessibilityDecrement];
+            [self.parentContent.control setNeedsFocusUpdate];
+        }
+        self.isHighlighted = self.selected;
+        [self setNeedsDisplay];
+        [self.parentContent syncFocus];
+    }
+    else
+    {
+        self.isHighlighted = NO;
+        result = [super shouldUpdateFocusInContext:context];
+    }
+    
+    BOOL resetPrevious =  (self != context.nextFocusedView && self == context.previouslyFocusedView) ||
+                    (self != context.previouslyFocusedView && [context.previouslyFocusedView isKindOfClass:[self class]]);
+    
+    if(resetPrevious)
+    {
+        GHSegmentedControlSegmentView* previousView = (GHSegmentedControlSegmentView*)context.previouslyFocusedView;
+        previousView.layer.shadowOffset = CGSizeMake(0, 0);
+        previousView.layer.shadowOpacity = 0.;
+        previousView.layer.shadowRadius = 0;
+        previousView.layer.cornerRadius = 0.0;
+        previousView.isHighlighted = NO;
+        [previousView setNeedsDisplay];
+    }
+    
+    
+    return result;
+}
+
+@end
+
+
+@implementation GHSegmentedControlContentView(tvOS)
+-(void) syncFocus
+{
+    NSInteger whichIndex = 0;
+    NSInteger selectedIndex = self.control.selectedSegmentIndex;
+    for(GHSegmentedControlSegmentView* segmentView in self.subviews)
+    {
+        CALayer* viewsLayer = segmentView.layer;
+        if(whichIndex == selectedIndex)
+        {
+            viewsLayer.shadowOffset = CGSizeMake(0, 10);
+            viewsLayer.shadowOpacity = 0.6;
+            viewsLayer.shadowRadius = 15;
+            viewsLayer.cornerRadius = 6.0;
+            viewsLayer.shadowColor = [UIColor blackColor].CGColor;
+            if(!segmentView.isHighlighted)
+            {
+                segmentView.isHighlighted = YES;
+                [segmentView setNeedsDisplay];
+            }
+        }
+        else
+        {
+            if(segmentView.isHighlighted)
+            {
+                segmentView.isHighlighted = NO;
+                [segmentView setNeedsDisplay];
+            }
+            viewsLayer.shadowOffset = CGSizeMake(0, 0);
+            viewsLayer.shadowOpacity = 0.;
+            viewsLayer.shadowRadius = 0;
+            viewsLayer.cornerRadius = 0.0;
+        }
+        whichIndex++;
+    }
+}
+
+
+-(UIView*) preferredFocusedView
+{
+    UIView* result = nil;
+    
+    if(self.selectedSegmentIndex == NSNotFound)
+    {
+        if(self.canBecomeFocused && self.subviews.count)
+        {
+            result = [self.subviews objectAtIndex:0];
+        }
+    }
+    else
+    {
+        result = [self.subviews objectAtIndex:self.selectedSegmentIndex];
+    }
+    
+    return result;
+}
+
+@end
+
+@implementation GHSegmentedControl(tvOS)
+-(BOOL) canBecomeFocused
+{
+    return self.enabled;
+}
+
+
+-(UIView*) preferredFocusedView
+{
+    return self.contentView.preferredFocusedView;
+}
+
+- (BOOL)shouldUpdateFocusInContext:(UIFocusUpdateContext *)context
+{
+    BOOL result =  NO;
+    if(context.nextFocusedView == self)
+    {
+        result = YES;
+    }
+    else
+    {
+        result = [super shouldUpdateFocusInContext:context];
+    }
+    
+    return result;
+}
+
+
+-(void) setHighlighted:(BOOL)highlighted
+{
+    [super setHighlighted:highlighted];
+}
+
+-(void) pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    for(GHSegmentedControlSegmentView* aView in self.contentView.subviews)
+    {
+        aView.layer.shadowOpacity = 0.0;
+    }
+    
+}
+
+-(void) pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    for(GHSegmentedControlSegmentView* aView in self.contentView.subviews)
+    {
+        aView.layer.shadowOpacity = 1.0;
+    }
+    self.beingPressed = NO;
+}
+
+- (void)pressesCancelled:(NSSet<UIPress *> *)presses withEvent:(nullable UIPressesEvent *)event
+{
+    for(GHSegmentedControlSegmentView* aView in self.contentView.subviews)
+    {
+        aView.layer.shadowOpacity = 1.0;
+    }
+    self.beingPressed = NO;
+}
+
+@end
+
+#endif

@@ -129,7 +129,11 @@
 
 - (IBAction)toggleView:(GHSegmentedControl *)sender
 {
-    NSInteger selectedSegment = sender.selectedSegmentIndex;
+	NSInteger selectedSegment = sender.selectedSegmentIndex;
+	[self chooseArtworkIndex:selectedSegment];
+}
+-(void)chooseArtworkIndex:(NSInteger)selectedSegment
+{
     NSString* controlIdentifier = nil;
     switch(selectedSegment)
     {
