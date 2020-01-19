@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 */
 @interface GHAttributedObject : NSObject
 @property (strong, nonatomic, readonly) NSDictionary*  	attributes;
+@property (readonly, nonatomic)  NSString* __nullable entityName;
 
 -(instancetype) initWithDictionary:(NSDictionary*)theAttributes;
 -(instancetype) initWithAttributes:(NSDictionary*)theAttributes;

@@ -299,6 +299,12 @@
     return result;
 }
 
+-(NSString*) entityName
+{
+    return @"text";
+}
+
+
 -(BOOL)isEqual:(id)object
 {
     BOOL result = object == self;
@@ -771,6 +777,12 @@
     return result;
 }
 
+-(NSString*) entityName
+{
+    return @"textArea";
+}
+
+
 -(NSUInteger)calculatedHash
 {
     NSUInteger result = [super calculatedHash];
@@ -891,7 +903,7 @@
     {
         CGRect myBox = self.box;
         CGContextSaveGState(quartzContext);
-        NSString* fillString = [self valueForStyleAttribute:@"fill"];
+        NSString* fillString = [self valueForStyleAttribute:@"fill" withSVGContext:svgContext];
         UIColor* textColor = nil ;
 		if(fillString.length)
         {

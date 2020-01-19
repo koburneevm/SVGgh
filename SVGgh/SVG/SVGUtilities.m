@@ -1128,7 +1128,7 @@ NSDictionary<NSString*, NSString*>* WebNameMapping()
           @"greenyellow":@"#adff2f",
           @"honeydew":@"#f0fff0",
           @"hotpink":@"#ff69b4",
-          @"indianred ":@"#cd5c5c",
+          @"indianred":@"#cd5c5c",
           @"indigo ":@"#4b0082",
           @"ivory":@"#fffff0",
           @"khaki":@"#f0e68c",
@@ -2373,6 +2373,24 @@ void AddSVGArcToPath(CGMutablePathRef thePath,
 		}
 	}
 	return result;
+}
+
++(NSString*) valueForStyleAttribute:(NSString*)attributeName fromDefinition:(NSDictionary*)elementAttributes forEnityName:(NSString*)entityTypeName withSVGContext:(id<SVGContext> __nullable)svgContext
+{
+    NSString* result = nil;
+    
+    if(svgContext.hasCSSAttributes)
+    {
+        NSArray* classes = [[elementAttributes valueForKey:@"class"] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        result = [svgContext attributeNamed:attributeName classes:classes entityName:entityTypeName];
+    }
+    
+    if(result == nil)
+    {
+        result = [self valueForStyleAttribute:attributeName fromDefinition:elementAttributes];
+    }
+    
+    return result;
 }
 
 +(NSDictionary*)dictionaryForStyleAttributeString:(NSString*)styleString

@@ -48,28 +48,20 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    NSURL*  myArtwork = [GHControlFactory locateArtworkForObject:self atSubpath:@"Artwork/Helmet"];
-    
-    SVGRenderer* aRenderer = [[SVGRenderer alloc] initWithContentsOfURL:myArtwork];
+	
+    SVGRenderer* aRenderer = [[SVGRenderer alloc] initWithResourceName:@"Artwork/Helmet" inBundle:nil];
     [self.segmentedControl insertSegmentWithRenderer:aRenderer accessibilityLabel:NSLocalizedString(@"Football Helmet", @"") atIndex:0 animated:NO];
-    
-    myArtwork = [GHControlFactory locateArtworkForObject:self atSubpath:@"Artwork/Eye"];
-    aRenderer = [[SVGRenderer alloc] initWithContentsOfURL:myArtwork];
+	
+    aRenderer = [[SVGRenderer alloc] initWithResourceName:@"Artwork/Eye" inBundle:nil];
     
     [self.segmentedControl insertSegmentWithRenderer:aRenderer accessibilityLabel:NSLocalizedString(@"Eye", @"") atIndex:1 animated:NO];
-    
-    
-    
-    myArtwork = [GHControlFactory locateArtworkForObject:self atSubpath:@"Artwork/Butterfly"];
-    aRenderer = [[SVGRenderer alloc] initWithContentsOfURL:myArtwork];
-    
-    [self.segmentedControl insertSegmentWithRenderer:aRenderer accessibilityLabel:NSLocalizedString(@"Butterfly", @"") atIndex:2 animated:NO];
+	
+	aRenderer = [[SVGRenderer alloc] initWithResourceName:@"Artwork/Widgets" inBundle:nil];
+	
+    [self.segmentedControl insertSegmentWithRenderer:aRenderer accessibilityLabel:NSLocalizedString(@"Widgets", @"") atIndex:2 animated:NO];
     [self.segmentedControl insertSegmentWithTitle:NSLocalizedString(@"Curvy", @"") atIndex:3 animated:NO];
     self.segmentedControl.selectedSegmentIndex = 0;
 
-    
-    
 	// Do any additional setup after loading the view, typically from a nib.
 }
 
@@ -144,7 +136,7 @@
             controlIdentifier = @"eyes";
         break;
         case 2:
-            controlIdentifier = @"creatures";
+            controlIdentifier = @"widgets";
         break;
         case 3:
             controlIdentifier = @"textOnCurve";
