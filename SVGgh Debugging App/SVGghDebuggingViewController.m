@@ -51,11 +51,11 @@
     [super viewDidLoad];
 	
     SVGRenderer* aRenderer = [[SVGRenderer alloc] initWithResourceName:@"Artwork/Helmet" inBundle:nil];
-    [self.segmentedControl insertSegmentWithRenderer:aRenderer accessibilityLabel:NSLocalizedString(@"Football Helmet", @"") atIndex:0 animated:NO];
+	[self.segmentedControl insertSegmentWithRenderer:aRenderer accessibilityLabel:NSLocalizedString(@"Football Helmet", @"") atIndex:0 animated:NO];
 	
-    aRenderer = [[SVGRenderer alloc] initWithResourceName:@"Artwork/Eye" inBundle:nil];
-    
-    [self.segmentedControl insertSegmentWithRenderer:aRenderer accessibilityLabel:NSLocalizedString(@"Eye", @"") atIndex:1 animated:NO];
+	aRenderer = [[SVGRenderer alloc] initWithResourceName:@"Artwork/Eye" inBundle:nil];
+	
+	[self.segmentedControl insertSegmentWithRenderer:aRenderer accessibilityLabel:NSLocalizedString(@"Eye", @"") atIndex:1 animated:NO];
 	
 	aRenderer = [[SVGRenderer alloc] initWithResourceName:@"Artwork/Widgets" inBundle:nil];
 #if TARGET_OS_TV
@@ -64,7 +64,7 @@
 #else
 	
 	[self.segmentedControl insertSegmentWithRenderer:aRenderer accessibilityLabel:NSLocalizedString(@"Widgets", @"") atIndex:2 animated:NO];
-	[self.segmentedControl insertSegmentWithTitle:NSLocalizedString(@"Curvy", @"") atIndex:3 animated:NO];
+	[self.segmentedControl insertSegmentWithTitle:NSLocalizedString(@"Curvy", @"") atIndex:4 animated:NO];
 #endif
     self.segmentedControl.selectedSegmentIndex = 0;
 
@@ -138,12 +138,16 @@
     {
         case 0:
             controlIdentifier = @"helmet";
-        break;
-        case 1:
-            controlIdentifier = @"eyes";
-        break;
+		break;
+		case 1:
+			controlIdentifier = @"eyesGzip";
+		break;
         case 2:
-            controlIdentifier = @"widgets";
+			#if TARGET_OS_TV
+            controlIdentifier = @"textOnCurve";
+			# else
+			controlIdentifier = @"widgets";
+			#endif
         break;
         case 3:
             controlIdentifier = @"textOnCurve";
