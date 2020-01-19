@@ -68,7 +68,7 @@ BOOL IsFontFamilyAvailable(NSString* fontFamilyName);
 	static double sResult = 0.0;
 	if(sResult == 0.0)
 	{
-		CTFontRef defaultFontRef = CTFontCreateUIFontForLanguage(kCTFontUserFontType, 0.0, 0);
+		CTFontRef defaultFontRef = CTFontCreateUIFontForLanguage(kCTFontUIFontUser, 0.0, 0);
 		if(defaultFontRef != 0)
 		{
 			sResult =  CTFontGetSize(defaultFontRef);
@@ -177,7 +177,7 @@ BOOL IsFontFamilyAvailable(NSString* fontFamilyName);
 		}
 		else
 		{
-			CTFontRef defaultFontRef = CTFontCreateUIFontForLanguage(kCTFontUserFontType, 0.0, 0);
+			CTFontRef defaultFontRef = CTFontCreateUIFontForLanguage(kCTFontUIFontUser, 0.0, 0);
 			if(defaultFontRef != 0)
 			{
 				result =  CTFontCopyFontDescriptor(defaultFontRef);
