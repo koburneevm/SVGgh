@@ -3,7 +3,7 @@
 //  SVGgh
 // The MIT License (MIT)
 
-//  Copyright (c) 2011-2014 Glenn R. Howes
+//  Copyright (c) 2011-2018 Glenn R. Howes
 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -112,6 +112,37 @@
     }
     return self;
 }
+
+-(instancetype) initWithResourceName:(NSString*)resourceName inBundle:(nullable NSBundle*)bundle
+{
+    if(nil != (self = [super initWithResourceName:resourceName inBundle:bundle]))
+    {
+        _colorMap = [[NSMutableDictionary alloc] init];
+        
+        CFArrayRef langs = CFLocaleCopyPreferredLanguages();
+        CFStringRef langCode = CFArrayGetValueAtIndex (langs, 0);
+        _isoLanguage = [[NSString stringWithString:(__bridge NSString*)langCode] substringToIndex:2];
+        CFRelease(langs);
+        self.opacity = 1.0;
+    }
+    return self;
+}
+
+-(nullable instancetype) initWithDataAssetNamed:(NSString*)assetName withBundle:(nullable NSBundle*)bundle
+{
+    if(nil != (self = [super initWithDataAssetNamed:assetName withBundle:bundle]))
+    {
+        _colorMap = [[NSMutableDictionary alloc] init];
+        
+        CFArrayRef langs = CFLocaleCopyPreferredLanguages();
+        CFStringRef langCode = CFArrayGetValueAtIndex (langs, 0);
+        _isoLanguage = [[NSString stringWithString:(__bridge NSString*)langCode] substringToIndex:2];
+        CFRelease(langs);
+        self.opacity = 1.0;
+    }
+    return self;
+}
+
 
 -(BOOL) hidden
 {
@@ -251,13 +282,13 @@
     CGFloat scaledWidth = floor(documentSize.width*fittedScaling);
     CGFloat scaleHeight = floor(documentSize.height*fittedScaling);
     CGSize scaledSize = CGSizeMake(scaledWidth, scaleHeight);
-    Class cgRendererClass = NSClassFromString(@"UIGraphicsImageRenderer");
-    if(cgRendererClass != nil)
+    
+    if (@available(iOS 10, tvOS 10, *)) 
     {
         UIGraphicsImageRendererFormat* format = [[UIGraphicsImageRendererFormat alloc] init];
         format.prefersExtendedRange = NO;
         format.scale = scale;
-        UIGraphicsImageRenderer* renderer = [[cgRendererClass alloc] initWithSize:scaledSize format:format];
+        UIGraphicsImageRenderer* renderer = [[UIGraphicsImageRenderer alloc] initWithSize:scaledSize format:format];
         UIImage* result = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
             
             CGContextRef quartzContext = rendererContext.CGContext;
