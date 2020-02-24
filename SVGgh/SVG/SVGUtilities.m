@@ -34,20 +34,20 @@
 
 const CGFloat kDegreesToRadiansConstant = (CGFloat)(M_PI/180.0);
 
-NSString* const	kWhiteInHex = @"#FFFFFF";
+NSString* const    kWhiteInHex = @"#FFFFFF";
 NSString* const   kBlackInHex = @"#000";
 
 
-CGFloat CalculateVectorRatio(CGPoint	vector1, CGPoint vector2);
+CGFloat CalculateVectorRatio(CGPoint    vector1, CGPoint vector2);
 CGFloat CalculateVectorMagnitude(CGPoint aVector);
 
 // misusing CGPoint as a vector for laziness
 CGFloat CalculateVectorMagnitude(CGPoint aVector)
 {
-	CGFloat	result = sqrtf(aVector.x*aVector.x+aVector.y*aVector.y);
-	
-	
-	return result;
+    CGFloat    result = sqrtf(aVector.x*aVector.x+aVector.y*aVector.y);
+    
+    
+    return result;
 }
 
 BOOL IsStringURL(NSString* aString)
@@ -67,24 +67,24 @@ NSString* ExtractURLContents(NSString* aString)
     return result;
 }
 
-CGFloat CalculateVectorRatio(CGPoint	vector1, CGPoint vector2)
+CGFloat CalculateVectorRatio(CGPoint    vector1, CGPoint vector2)
 {
-	CGFloat	result = vector1.x*vector2.x+vector1.y*vector2.y;
-	result /= (CalculateVectorMagnitude(vector1)*CalculateVectorMagnitude(vector2));
-	return result;
+    CGFloat    result = vector1.x*vector2.x+vector1.y*vector2.y;
+    result /= (CalculateVectorMagnitude(vector1)*CalculateVectorMagnitude(vector2));
+    return result;
 }
 
-CGFloat CalculateVectorAngle(CGPoint	vector1, CGPoint vector2)
+CGFloat CalculateVectorAngle(CGPoint    vector1, CGPoint vector2)
 {
-	CGFloat	vectorRatio = CalculateVectorRatio(vector1, vector2);
-	
-	CGFloat	result = acosf(vectorRatio);
-	
-	if((vector1.x*vector2.y) < (vector1.y*vector2.x))
-	{
-		result *= -1.0;
-	}
-	return result;
+    CGFloat    vectorRatio = CalculateVectorRatio(vector1, vector2);
+    
+    CGFloat    result = acosf(vectorRatio);
+    
+    if((vector1.x*vector2.y) < (vector1.y*vector2.x))
+    {
+        result *= -1.0;
+    }
+    return result;
 }
 
 NSDictionary* DefaultSVGDrawingAttributes(void)
@@ -320,15 +320,15 @@ NSDictionary* SVGMergeStyleAttributes(NSDictionary* parentAttributes, NSDictiona
 
 NSArray* ArrayForSVGAttribute(NSDictionary* svgAttributes, NSString* key)
 {
-	NSArray*	result = nil;
-	id anAttribute = [svgAttributes objectForKey:key];
-	if([anAttribute isKindOfClass:[NSArray class]])
-	{
-		result = (NSArray*)anAttribute;
-	}
+    NSArray*    result = nil;
+    id anAttribute = [svgAttributes objectForKey:key];
+    if([anAttribute isKindOfClass:[NSArray class]])
+    {
+        result = (NSArray*)anAttribute;
+    }
     else if([anAttribute isKindOfClass:[NSString class]])
     {
-		result = [[NSArray alloc] initWithObjects:anAttribute, nil];
+        result = [[NSArray alloc] initWithObjects:anAttribute, nil];
         NSArray* subComponents = [anAttribute componentsSeparatedByString:@","];
         if([subComponents count])
         {
@@ -346,11 +346,11 @@ NSArray* ArrayForSVGAttribute(NSDictionary* svgAttributes, NSString* key)
             result = [mutableResult copy];
         }
     }
-	else if(anAttribute != nil)
-	{
-		result = [[NSArray alloc] initWithObjects:anAttribute, nil];
-	}
-	return result;
+    else if(anAttribute != nil)
+    {
+        result = [[NSArray alloc] initWithObjects:anAttribute, nil];
+    }
+    return result;
 }
 
 
@@ -358,37 +358,37 @@ NSArray* ArrayForSVGAttribute(NSDictionary* svgAttributes, NSString* key)
 NSDictionary* AttributesFromSVGCompactAttributes(NSString* compactedAttributes)
 {
     NSMutableDictionary* mutableResult = [NSMutableDictionary dictionary];
-	NSArray* components = [compactedAttributes componentsSeparatedByString:@";"];
-	if([components count])
-	{
-		for(NSString* aValuePairString in components)
-		{
-			NSRange	rangeOfColon = [aValuePairString rangeOfString:@":"];
-			if(rangeOfColon.location != NSNotFound && rangeOfColon.location > 0
-			   && rangeOfColon.location < [aValuePairString length])
-			{
-				NSString*	keyString = [[aValuePairString substringToIndex:rangeOfColon.location] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-				NSString*	valueString = [[aValuePairString substringFromIndex:rangeOfColon.location+1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-				
-				NSArray* subComponents = [valueString componentsSeparatedByString:@","];
-				if([subComponents count] > 1)
-				{
-					[mutableResult setObject:subComponents forKey:keyString];
-				}
-				else if([valueString length])
-				{
-					[mutableResult setObject:valueString forKey:keyString];
-				}
-			}
-		}
-	}
-	return [mutableResult copy];
+    NSArray* components = [compactedAttributes componentsSeparatedByString:@";"];
+    if([components count])
+    {
+        for(NSString* aValuePairString in components)
+        {
+            NSRange    rangeOfColon = [aValuePairString rangeOfString:@":"];
+            if(rangeOfColon.location != NSNotFound && rangeOfColon.location > 0
+               && rangeOfColon.location < [aValuePairString length])
+            {
+                NSString*    keyString = [[aValuePairString substringToIndex:rangeOfColon.location] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                NSString*    valueString = [[aValuePairString substringFromIndex:rangeOfColon.location+1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                
+                NSArray* subComponents = [valueString componentsSeparatedByString:@","];
+                if([subComponents count] > 1)
+                {
+                    [mutableResult setObject:subComponents forKey:keyString];
+                }
+                else if([valueString length])
+                {
+                    [mutableResult setObject:valueString forKey:keyString];
+                }
+            }
+        }
+    }
+    return [mutableResult copy];
 }
 
 NSString* UnquotedSVGString(NSString* possiblyQuotedString)
 {
-	NSString*	result = [possiblyQuotedString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\"'"]];
-	return result;
+    NSString*    result = [possiblyQuotedString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\"'"]];
+    return result;
 }
 
 
@@ -398,18 +398,18 @@ CGContextRef BitmapContextCreate (size_t pixelsWide,
 {
     CGContextRef bitmapContext = 0;
     CGColorSpaceRef colorSpace;
-	
+    
     colorSpace = CGColorSpaceCreateDeviceRGB();
-	
-	
-	// create the bitmap context
+    
+    
+    // create the bitmap context
     bitmapContext = CGBitmapContextCreate (NULL, pixelsWide, pixelsHigh, 8,
-										   pixelsWide*4, colorSpace, (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
-	
-	// free the rgb colorspace
+                                           pixelsWide*4, colorSpace, (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
+    
+    // free the rgb colorspace
     CGColorSpaceRelease(colorSpace);
-	
-	// return the bitmap context
+    
+    // return the bitmap context
     return bitmapContext;
 }
 
@@ -453,7 +453,7 @@ CGAffineTransform SVGTransformToCGAffineTransformSlow(NSString* transformAttribu
 
 CGAffineTransform SVGTransformToCGAffineTransform(NSString* transformAttribute)
 {
-	CGAffineTransform	result = CGAffineTransformIdentity;
+    CGAffineTransform    result = CGAffineTransformIdentity;
     NSUInteger stringLength = transformAttribute.length;
     if(stringLength > 8 && stringLength < 255)
     {
@@ -464,7 +464,7 @@ CGAffineTransform SVGTransformToCGAffineTransform(NSString* transformAttribute)
         {
             while(stringIndex < stringLength)
             {
-                BOOL	failed = NO;
+                BOOL    failed = NO;
                 NSUInteger stringLeft = stringLength-stringIndex;
                 char aChar = stringBuffer[stringIndex];
                 NSUInteger maxParameters = 0;
@@ -672,7 +672,7 @@ CGAffineTransform SVGTransformToCGAffineTransform(NSString* transformAttribute)
                             break;
                             case     kTranslateOperation:
                             {
-                                CGFloat	xTrans = 0.0, yTrans = 0.0;
+                                CGFloat    xTrans = 0.0, yTrans = 0.0;
                                 switch(parameterIndex)
                                 {
                                     default:
@@ -696,7 +696,7 @@ CGAffineTransform SVGTransformToCGAffineTransform(NSString* transformAttribute)
                             break;
                             case    kRotateOperation:
                             {
-                                CGFloat	rotationAngle = 0.0;
+                                CGFloat    rotationAngle = 0.0;
                                 switch(parameterIndex)
                                 {
                                     default:
@@ -728,7 +728,7 @@ CGAffineTransform SVGTransformToCGAffineTransform(NSString* transformAttribute)
                             break;
                             case    kScaleOperation:
                             {
-                                CGFloat	xScale = 1.0, yScale = 1.0;
+                                CGFloat    xScale = 1.0, yScale = 1.0;
                                 switch(parameterIndex)
                                 {
                                     default:
@@ -766,7 +766,7 @@ CGAffineTransform SVGTransformToCGAffineTransform(NSString* transformAttribute)
                                     {
                                         CGFloat skewAngleDegrees = parameters[0];
                                         double skewAngle = skewAngleDegrees*M_PI/180.0;
-                                        double	tanSkewAngle = tan(skewAngle);
+                                        double    tanSkewAngle = tan(skewAngle);
                                         CGAffineTransform skewedTransform = CGAffineTransformIdentity;
                                         skewedTransform.c = (CGFloat)tanSkewAngle;
                                         
@@ -790,7 +790,7 @@ CGAffineTransform SVGTransformToCGAffineTransform(NSString* transformAttribute)
                                     {
                                         CGFloat skewAngleDegrees = parameters[0];
                                         double skewAngle = skewAngleDegrees*M_PI/180.0;
-                                        double	tanSkewAngle = tan(skewAngle);
+                                        double    tanSkewAngle = tan(skewAngle);
                                         
                                         CGAffineTransform skewedTransform = CGAffineTransformIdentity;
                                         skewedTransform.b = tanSkewAngle;
@@ -821,9 +821,9 @@ CGAffineTransform SVGTransformToCGAffineTransform(NSString* transformAttribute)
 
 CGAffineTransform SVGTransformToCGAffineTransformSlow(NSString* transformAttribute)
 {
-	CGAffineTransform	result = CGAffineTransformIdentity;
-	if([transformAttribute length])
-	{
+    CGAffineTransform    result = CGAffineTransformIdentity;
+    if([transformAttribute length])
+    {
         static NSMutableCharacterSet* punctuationAndWhiteSpaceSet = nil;
         static NSMutableCharacterSet* commaAndWhiteSpaceSet = nil;
         static dispatch_once_t  done;
@@ -838,35 +838,35 @@ CGAffineTransform SVGTransformToCGAffineTransformSlow(NSString* transformAttribu
 
         });
 
-		NSArray*	operations = [transformAttribute componentsSeparatedByString:@")"];
-		for(__strong NSString*	anOperation in operations)
-		{
-			BOOL	failed = NO;
-			anOperation = [anOperation stringByTrimmingCharactersInSet:punctuationAndWhiteSpaceSet];
-			NSRange	rangeOfParenthesis = [anOperation rangeOfString:@"("];
-			if(rangeOfParenthesis.location == NSNotFound) break;
-			
-			NSString*	parameterString = [anOperation substringFromIndex:rangeOfParenthesis.location+1];
-			NSArray*	parameters = [parameterString componentsSeparatedByCharactersInSet:commaAndWhiteSpaceSet];
-			NSMutableArray*	trimmedParameters = [parameters mutableCopy];
-			
-			for(NSUInteger index = [trimmedParameters count]-1; ; index--)
-			{
-				if([[trimmedParameters objectAtIndex:index] length] == 0) // remove any empty strings
-				{
-					[trimmedParameters removeObjectAtIndex:index];
-				}
+        NSArray*    operations = [transformAttribute componentsSeparatedByString:@")"];
+        for(__strong NSString*    anOperation in operations)
+        {
+            BOOL    failed = NO;
+            anOperation = [anOperation stringByTrimmingCharactersInSet:punctuationAndWhiteSpaceSet];
+            NSRange    rangeOfParenthesis = [anOperation rangeOfString:@"("];
+            if(rangeOfParenthesis.location == NSNotFound) break;
+            
+            NSString*    parameterString = [anOperation substringFromIndex:rangeOfParenthesis.location+1];
+            NSArray*    parameters = [parameterString componentsSeparatedByCharactersInSet:commaAndWhiteSpaceSet];
+            NSMutableArray*    trimmedParameters = [parameters mutableCopy];
+            
+            for(NSUInteger index = [trimmedParameters count]-1; ; index--)
+            {
+                if([[trimmedParameters objectAtIndex:index] length] == 0) // remove any empty strings
+                {
+                    [trimmedParameters removeObjectAtIndex:index];
+                }
                 if(index == 0)
                 {
                     break;
                 }
-			}
-			
-			if([anOperation hasPrefix:@"matrix"])
-			{
-				if([trimmedParameters count] == 6)
-				{
-					CGAffineTransform specificTransform = CGAffineTransformMake(
+            }
+            
+            if([anOperation hasPrefix:@"matrix"])
+            {
+                if([trimmedParameters count] == 6)
+                {
+                    CGAffineTransform specificTransform = CGAffineTransformMake(
                             [[trimmedParameters objectAtIndex:0] floatValue],
                             [[trimmedParameters objectAtIndex:1] floatValue],
                             [[trimmedParameters objectAtIndex:2] floatValue],
@@ -875,149 +875,149 @@ CGAffineTransform SVGTransformToCGAffineTransformSlow(NSString* transformAttribu
                             [[trimmedParameters objectAtIndex:5] floatValue]
                             
                                                                                 );
-					result = CGAffineTransformConcat(specificTransform, result);
-				}
-				else
-				{
-					failed = YES;
-				}
-			}
-			else if([anOperation hasPrefix:@"translate"])
-			{
-				CGFloat	xTrans = 0.0, yTrans = 0.0;
-				switch([trimmedParameters count])
-				{
-					default:
-					case 0:
-					{
-						failed = YES;
-					}
+                    result = CGAffineTransformConcat(specificTransform, result);
+                }
+                else
+                {
+                    failed = YES;
+                }
+            }
+            else if([anOperation hasPrefix:@"translate"])
+            {
+                CGFloat    xTrans = 0.0, yTrans = 0.0;
+                switch([trimmedParameters count])
+                {
+                    default:
+                    case 0:
+                    {
+                        failed = YES;
+                    }
                         break;
-					case 2:
-					{
-						yTrans = [[trimmedParameters objectAtIndex:1] floatValue];
-					}// deliberate fallthrough
-					case 1:
-					{
-						xTrans = [[trimmedParameters objectAtIndex:0] floatValue];
-					}
+                    case 2:
+                    {
+                        yTrans = [[trimmedParameters objectAtIndex:1] floatValue];
+                    }// deliberate fallthrough
+                    case 1:
+                    {
+                        xTrans = [[trimmedParameters objectAtIndex:0] floatValue];
+                    }
                     break;
-				}
-				result = CGAffineTransformTranslate(result, xTrans, yTrans);
-			}
-			else if([anOperation hasPrefix:@"scale"])
-			{
-				CGFloat	xScale = 1.0, yScale = 1.0;
-				switch([trimmedParameters count])
-				{
-					default:
-					case 0:
-					{
-						failed = YES;
-					}
+                }
+                result = CGAffineTransformTranslate(result, xTrans, yTrans);
+            }
+            else if([anOperation hasPrefix:@"scale"])
+            {
+                CGFloat    xScale = 1.0, yScale = 1.0;
+                switch([trimmedParameters count])
+                {
+                    default:
+                    case 0:
+                    {
+                        failed = YES;
+                    }
                         break;
-					case 2:
-					{
-						yScale = [[trimmedParameters objectAtIndex:1] floatValue];
-						xScale = [[trimmedParameters objectAtIndex:0] floatValue];
-					}
+                    case 2:
+                    {
+                        yScale = [[trimmedParameters objectAtIndex:1] floatValue];
+                        xScale = [[trimmedParameters objectAtIndex:0] floatValue];
+                    }
                         break;
-					case 1:
-					{
-						yScale = xScale = [[trimmedParameters objectAtIndex:0] floatValue];
-					}
+                    case 1:
+                    {
+                        yScale = xScale = [[trimmedParameters objectAtIndex:0] floatValue];
+                    }
                         break;
-				}
-				result = CGAffineTransformScale(result, xScale, yScale);
-			}
-			else if([anOperation hasPrefix:@"rotate"])
-			{
-				CGFloat	rotationAngle = 0.0;
-				switch([trimmedParameters count])
-				{
-					default:
-					case 0:
-					{
-						failed = YES;
-					}
+                }
+                result = CGAffineTransformScale(result, xScale, yScale);
+            }
+            else if([anOperation hasPrefix:@"rotate"])
+            {
+                CGFloat    rotationAngle = 0.0;
+                switch([trimmedParameters count])
+                {
+                    default:
+                    case 0:
+                    {
+                        failed = YES;
+                    }
                         break;
-					case 3:
-					{
-						CGFloat centerX = [[trimmedParameters objectAtIndex:1] floatValue];
-						CGFloat centerY = [[trimmedParameters objectAtIndex:2] floatValue];
-						
-						rotationAngle = [[trimmedParameters objectAtIndex:0] floatValue]*kDegreesToRadiansConstant;
-						
-						result = CGAffineTransformTranslate(result,centerX, centerY);
-						result = CGAffineTransformRotate(result, rotationAngle);
-						result = CGAffineTransformTranslate(result,-1.0f*centerX, -1.0f*centerY);
-					}
+                    case 3:
+                    {
+                        CGFloat centerX = [[trimmedParameters objectAtIndex:1] floatValue];
+                        CGFloat centerY = [[trimmedParameters objectAtIndex:2] floatValue];
+                        
+                        rotationAngle = [[trimmedParameters objectAtIndex:0] floatValue]*kDegreesToRadiansConstant;
+                        
+                        result = CGAffineTransformTranslate(result,centerX, centerY);
+                        result = CGAffineTransformRotate(result, rotationAngle);
+                        result = CGAffineTransformTranslate(result,-1.0f*centerX, -1.0f*centerY);
+                    }
                         break;
-					case 1:
-					{
-						rotationAngle = [[trimmedParameters objectAtIndex:0] floatValue]*kDegreesToRadiansConstant;
-						result = CGAffineTransformRotate(result, rotationAngle);
-					}
+                    case 1:
+                    {
+                        rotationAngle = [[trimmedParameters objectAtIndex:0] floatValue]*kDegreesToRadiansConstant;
+                        result = CGAffineTransformRotate(result, rotationAngle);
+                    }
                         break;
-				}
-			}
-			else if([anOperation hasPrefix:@"skewX"])
-			{
-				switch([trimmedParameters count])
-				{
-					default:
-					case 0:
-					{
-						failed = YES;
-					}
+                }
+            }
+            else if([anOperation hasPrefix:@"skewX"])
+            {
+                switch([trimmedParameters count])
+                {
+                    default:
+                    case 0:
+                    {
+                        failed = YES;
+                    }
                         break;
-					case 1:
-					{
-						CGFloat skewAngleDegrees = [[trimmedParameters objectAtIndex:0] floatValue];
-						double skewAngle = skewAngleDegrees*M_PI/180.0;
-						double	tanSkewAngle = tan(skewAngle);
-						CGAffineTransform skewedTransform = CGAffineTransformIdentity;
-						skewedTransform.c = (CGFloat)tanSkewAngle;
-						
-						result = CGAffineTransformConcat(skewedTransform, result);
-					}
+                    case 1:
+                    {
+                        CGFloat skewAngleDegrees = [[trimmedParameters objectAtIndex:0] floatValue];
+                        double skewAngle = skewAngleDegrees*M_PI/180.0;
+                        double    tanSkewAngle = tan(skewAngle);
+                        CGAffineTransform skewedTransform = CGAffineTransformIdentity;
+                        skewedTransform.c = (CGFloat)tanSkewAngle;
+                        
+                        result = CGAffineTransformConcat(skewedTransform, result);
+                    }
                         break;
-				}
-			}
-			else if([anOperation hasPrefix:@"skewY"])
-			{
-				switch([trimmedParameters count])
-				{
-					default:
-					case 0:
-					{
-						failed = YES;
-					}
+                }
+            }
+            else if([anOperation hasPrefix:@"skewY"])
+            {
+                switch([trimmedParameters count])
+                {
+                    default:
+                    case 0:
+                    {
+                        failed = YES;
+                    }
                         break;
-					case 1:
-					{
-						CGFloat skewAngleDegrees = [[trimmedParameters objectAtIndex:0] floatValue];
-						double skewAngle = skewAngleDegrees*M_PI/180.0;
-						double	tanSkewAngle = tan(skewAngle);
-						
-						CGAffineTransform skewedTransform = CGAffineTransformIdentity;
-						skewedTransform.b = tanSkewAngle;
-						result = CGAffineTransformConcat(skewedTransform, result);
-					}
+                    case 1:
+                    {
+                        CGFloat skewAngleDegrees = [[trimmedParameters objectAtIndex:0] floatValue];
+                        double skewAngle = skewAngleDegrees*M_PI/180.0;
+                        double    tanSkewAngle = tan(skewAngle);
+                        
+                        CGAffineTransform skewedTransform = CGAffineTransformIdentity;
+                        skewedTransform.b = tanSkewAngle;
+                        result = CGAffineTransformConcat(skewedTransform, result);
+                    }
                         break;
-				}
-			}
+                }
+            }
             
-			if(failed)
-			{
-				break;
-			}
-		}
-	}
+            if(failed)
+            {
+                break;
+            }
+        }
+    }
     
     
     
-	return result;
+    return result;
 }
 
 
@@ -1308,16 +1308,16 @@ UIColor* UIColorFromSVGColorString (NSString * stringToConvert)
         }
         else if([stringToConvert hasPrefix:@"rgb"] || [stringToConvert hasPrefix:@"RGB"])
         {
-            NSString*	trimmedString = [stringToConvert stringByTrimmingCharactersInSet:[[NSCharacterSet characterSetWithCharactersInString:@"()"] invertedSet]];
+            NSString*    trimmedString = [stringToConvert stringByTrimmingCharactersInSet:[[NSCharacterSet characterSetWithCharactersInString:@"()"] invertedSet]];
             if([trimmedString length])
             {
                 trimmedString = [trimmedString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"()"]];
                 
                 NSArray* components = [trimmedString componentsSeparatedByString:@","];
-                NSString*	redString = nil;
-                NSString*	greenString = nil;
-                NSString*	blueString = nil;
-                NSUInteger	countOfComponents = [components count];
+                NSString*    redString = nil;
+                NSString*    greenString = nil;
+                NSString*    blueString = nil;
+                NSUInteger    countOfComponents = [components count];
                 if(countOfComponents > 0)
                 {
                     redString = [[components objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -1485,9 +1485,9 @@ UIColor* UIColorFromSVGColorString (NSString * stringToConvert)
         
         if(result == nil)
         {
-            CGFloat	redF = (CGFloat) r / 255.0f;
-            CGFloat	greenF =(CGFloat) g / 255.0f;
-            CGFloat	blueF =(CGFloat) b / 255.0f;
+            CGFloat    redF = (CGFloat) r / 255.0f;
+            CGFloat    greenF =(CGFloat) g / 255.0f;
+            CGFloat    blueF =(CGFloat) b / 255.0f;
             result = [UIColor colorWithRed:redF
                                      green:greenF
                                       blue:blueF
@@ -1505,29 +1505,29 @@ UIColor* UIColorFromSVGColorString (NSString * stringToConvert)
     }
     
     
-	return result;
+    return result;
 }
 
 
 CGRect SVGStringToRectSlow(NSString* serializedRect)
 {
-    CGRect	result  = CGRectZero;
-	
-	NSArray* components = [serializedRect	componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-	
-	if([components count] == 4)
-	{
-		result = CGRectMake([[components objectAtIndex:0] floatValue],
-							[[components objectAtIndex:1] floatValue],
-							[[components objectAtIndex:2] floatValue],
-							[[components objectAtIndex:3] floatValue]);
-	}
-	return result;
+    CGRect    result  = CGRectZero;
+    
+    NSArray* components = [serializedRect    componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    if([components count] == 4)
+    {
+        result = CGRectMake([[components objectAtIndex:0] floatValue],
+                            [[components objectAtIndex:1] floatValue],
+                            [[components objectAtIndex:2] floatValue],
+                            [[components objectAtIndex:3] floatValue]);
+    }
+    return result;
 }
 
 CGRect SVGStringToRect(NSString* serializedRect)
 {
-    CGRect	result  = CGRectZero;
+    CGRect    result  = CGRectZero;
     NSInteger stringLength = serializedRect.length;
     if(stringLength >= 7 && stringLength < 255)
     {
@@ -1642,11 +1642,11 @@ CGRect SVGStringToRect(NSString* serializedRect)
 
 
 
-CGFloat	GetNextCoordinate(const char* buffer, NSUInteger* indexPtr, NSUInteger bufferLength, BOOL* failed)
+CGFloat    GetNextCoordinate(const char* buffer, NSUInteger* indexPtr, NSUInteger bufferLength, BOOL* failed)
 { // retrieve the next value from the d parameter of an SVG path
-	CGFloat	result = 0.0;
-	NSUInteger	srcBufferIndex = *indexPtr;
-	char	theChar = 0;
+    CGFloat    result = 0.0;
+    NSUInteger    srcBufferIndex = *indexPtr;
+    char    theChar = 0;
     BOOL numberSeen = NO;
     
     if(srcBufferIndex < bufferLength)
@@ -1665,9 +1665,9 @@ CGFloat	GetNextCoordinate(const char* buffer, NSUInteger* indexPtr, NSUInteger b
     {
         *failed = YES;
     }
-	
-	while(*failed == NO && !(theChar == '-' || theChar == '+' || theChar == '.' || (theChar >= '0' && theChar <= '9') || theChar == 'e'))
-	{
+    
+    while(*failed == NO && !(theChar == '-' || theChar == '+' || theChar == '.' || (theChar >= '0' && theChar <= '9') || theChar == 'e'))
+    {
         if(srcBufferIndex < bufferLength)
         {
             theChar = buffer[srcBufferIndex];
@@ -1684,15 +1684,15 @@ CGFloat	GetNextCoordinate(const char* buffer, NSUInteger* indexPtr, NSUInteger b
         {
             *failed = YES;
         }
-		if(srcBufferIndex >= bufferLength)
-		{
-			break;
-		}
-	}
-	if(*failed == NO)
+        if(srcBufferIndex >= bufferLength)
+        {
+            break;
+        }
+    }
+    if(*failed == NO)
     {
-        char	stringBuffer[100];
-        NSUInteger	stringBufferIndex = 0;
+        char    stringBuffer[100];
+        NSUInteger    stringBufferIndex = 0;
         
         if(theChar == '-' || theChar == '+' || theChar == '.' || (theChar >= '0' && theChar <= '9') || theChar == 'e')
         {
@@ -1755,9 +1755,9 @@ CGFloat	GetNextCoordinate(const char* buffer, NSUInteger* indexPtr, NSUInteger b
         { // jump to the next operand or number
             theChar = buffer[++srcBufferIndex];
         }
-	}
-	*indexPtr = srcBufferIndex;
-	return result;
+    }
+    *indexPtr = srcBufferIndex;
+    return result;
 }
 
 
@@ -1823,130 +1823,130 @@ void AddSVGArcToPath(CGMutablePathRef thePath,
                      CGFloat xRadius,
                      CGFloat  yRadius,
                      double  xAxisRotationDegrees,
-                     BOOL largeArcFlag, BOOL	sweepFlag,
+                     BOOL largeArcFlag, BOOL    sweepFlag,
                      CGFloat endPointX, CGFloat endPointY)
 {//implementation notes http://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
-	// general algorithm from MIT licensed http://code.google.com/p/svg-edit/source/browse/trunk/editor/canvg/canvg.js
-	// Gabe Lerner (gabelerner@gmail.com)
-	// first do first aid to the parameters to keep them in line
-	
-	CGPoint curPoint = CGPathGetCurrentPoint(thePath);
-	if(curPoint.x == endPointX && endPointY == curPoint.y)
-	{ // do nothing
-	}
-	else if(xRadius == 0.0 || yRadius == 0.0) // not an actual arc, draw a line segment
-	{
-		CGPathAddLineToPoint(thePath,NULL, endPointX, endPointY);
-	}
-	else // actually try to draw an arc
-	{
-		xRadius = fabs(xRadius); // make sure radius are positive
-		yRadius = fabs(yRadius);
-		xAxisRotationDegrees = fmod(xAxisRotationDegrees, 360.0);
-		CGFloat	xAxisRotationRadians = xAxisRotationDegrees*kDegreesToRadiansConstant;
-		CGFloat cosineAxisRotation = cosf(xAxisRotationRadians);
-		CGFloat sineAxisRotation = sinf(xAxisRotationRadians);
-		CGFloat deltaX = curPoint.x-endPointX;
-		CGFloat deltaY = curPoint.y-endPointY;
-		
-		// steps are from the implementation notes
-		// F.6.5  Step 1: Compute (x1′, y1′)
-		CGPoint	translatedCurPoint
+    // general algorithm from MIT licensed http://code.google.com/p/svg-edit/source/browse/trunk/editor/canvg/canvg.js
+    // Gabe Lerner (gabelerner@gmail.com)
+    // first do first aid to the parameters to keep them in line
+    
+    CGPoint curPoint = CGPathGetCurrentPoint(thePath);
+    if(curPoint.x == endPointX && endPointY == curPoint.y)
+    { // do nothing
+    }
+    else if(xRadius == 0.0 || yRadius == 0.0) // not an actual arc, draw a line segment
+    {
+        CGPathAddLineToPoint(thePath,NULL, endPointX, endPointY);
+    }
+    else // actually try to draw an arc
+    {
+        xRadius = fabs(xRadius); // make sure radius are positive
+        yRadius = fabs(yRadius);
+        xAxisRotationDegrees = fmod(xAxisRotationDegrees, 360.0);
+        CGFloat    xAxisRotationRadians = xAxisRotationDegrees*kDegreesToRadiansConstant;
+        CGFloat cosineAxisRotation = cosf(xAxisRotationRadians);
+        CGFloat sineAxisRotation = sinf(xAxisRotationRadians);
+        CGFloat deltaX = curPoint.x-endPointX;
+        CGFloat deltaY = curPoint.y-endPointY;
+        
+        // steps are from the implementation notes
+        // F.6.5  Step 1: Compute (x1′, y1′)
+        CGPoint    translatedCurPoint
         = CGPointMake(cosineAxisRotation*deltaX/2.0f+sineAxisRotation*deltaY/2.0f,
                       -1.0f*sineAxisRotation*deltaX/2.0f+cosineAxisRotation*deltaY/2.0f);
-		
         
-		// (skipping to different section) F.6.6 Step 3: Ensure radii are large enough
-		CGFloat	shouldBeNoMoreThanOne = translatedCurPoint.x*translatedCurPoint.x/(xRadius*xRadius)
+        
+        // (skipping to different section) F.6.6 Step 3: Ensure radii are large enough
+        CGFloat    shouldBeNoMoreThanOne = translatedCurPoint.x*translatedCurPoint.x/(xRadius*xRadius)
         + translatedCurPoint.y*translatedCurPoint.y/(yRadius*yRadius);
-		if(shouldBeNoMoreThanOne > 1.0)
-		{
-			xRadius *= sqrtf(shouldBeNoMoreThanOne);
-			yRadius *= sqrtf(shouldBeNoMoreThanOne);
-			
-			shouldBeNoMoreThanOne = translatedCurPoint.x*translatedCurPoint.x/(xRadius*xRadius)
-			+ translatedCurPoint.y*translatedCurPoint.y/(yRadius*yRadius);
-			if(shouldBeNoMoreThanOne > 1.0) // sometimes just a bit north of 1.0000000 after first pass
-			{
-				shouldBeNoMoreThanOne += .000001; // making sure
-				xRadius *= sqrtf(shouldBeNoMoreThanOne);
-				yRadius *= sqrtf(shouldBeNoMoreThanOne);
-			}
-		}
-		
-		CGAffineTransform	transform = CGAffineTransformIdentity;
-		// back to  F.6.5   Step 2: Compute (cx′, cy′)
-		double  centerScalingDivisor = xRadius*xRadius*translatedCurPoint.y*translatedCurPoint.y
+        if(shouldBeNoMoreThanOne > 1.0)
+        {
+            xRadius *= sqrtf(shouldBeNoMoreThanOne);
+            yRadius *= sqrtf(shouldBeNoMoreThanOne);
+            
+            shouldBeNoMoreThanOne = translatedCurPoint.x*translatedCurPoint.x/(xRadius*xRadius)
+            + translatedCurPoint.y*translatedCurPoint.y/(yRadius*yRadius);
+            if(shouldBeNoMoreThanOne > 1.0) // sometimes just a bit north of 1.0000000 after first pass
+            {
+                shouldBeNoMoreThanOne += .000001; // making sure
+                xRadius *= sqrtf(shouldBeNoMoreThanOne);
+                yRadius *= sqrtf(shouldBeNoMoreThanOne);
+            }
+        }
+        
+        CGAffineTransform    transform = CGAffineTransformIdentity;
+        // back to  F.6.5   Step 2: Compute (cx′, cy′)
+        double  centerScalingDivisor = xRadius*xRadius*translatedCurPoint.y*translatedCurPoint.y
         + yRadius*yRadius*translatedCurPoint.x*translatedCurPoint.x;
-		double	centerScaling = 0.0;
-		
-		if(centerScalingDivisor != 0.0)
-		{
-			centerScaling = sqrt((xRadius*xRadius*yRadius*yRadius
+        double    centerScaling = 0.0;
+        
+        if(centerScalingDivisor != 0.0)
+        {
+            centerScaling = sqrt((xRadius*xRadius*yRadius*yRadius
                                   - xRadius*xRadius*translatedCurPoint.y*translatedCurPoint.y
                                   - yRadius*yRadius*translatedCurPoint.x*translatedCurPoint.x)
-								 / centerScalingDivisor);
+                                 / centerScalingDivisor);
             if(centerScaling != centerScaling)
             {
                 centerScaling = 0.0;
             }
-			if(largeArcFlag == sweepFlag)
-			{
-				centerScaling *= -1.0;
-			}
-		}
-		
-		CGPoint translatedCenterPoint = CGPointMake(centerScaling*xRadius*translatedCurPoint.y/yRadius,
+            if(largeArcFlag == sweepFlag)
+            {
+                centerScaling *= -1.0;
+            }
+        }
+        
+        CGPoint translatedCenterPoint = CGPointMake(centerScaling*xRadius*translatedCurPoint.y/yRadius,
                                                     -1.0f*centerScaling*yRadius*translatedCurPoint.x/xRadius);
-		
-		// F.6.5  Step 3: Compute (cx, cy) from (cx′, cy′)
-		CGPoint centerPoint
+        
+        // F.6.5  Step 3: Compute (cx, cy) from (cx′, cy′)
+        CGPoint centerPoint
         = CGPointMake((curPoint.x+endPointX)/2.0f+cosineAxisRotation*translatedCenterPoint.x-sineAxisRotation*translatedCenterPoint.y,
                       (curPoint.y+endPointY)/2.0f+sineAxisRotation*translatedCenterPoint.x+cosineAxisRotation*translatedCenterPoint.y);
-		// F.6.5   Step 4: Compute θ1 and Δθ
-		
-		// misusing CGPoint as a vector
-		CGPoint vectorX = CGPointMake(1.0, 0.0);
-		CGPoint vectorU = CGPointMake((translatedCurPoint.x-translatedCenterPoint.x)/xRadius,
-									  (translatedCurPoint.y-translatedCenterPoint.y)/yRadius);
-		CGPoint vectorV = CGPointMake((-1.0f*translatedCurPoint.x-translatedCenterPoint.x)/xRadius,
-									  (-1.0f*translatedCurPoint.y-translatedCenterPoint.y)/yRadius);
-		
-		CGFloat	startAngle = CalculateVectorAngle(vectorX, vectorU);
-		CGFloat	angleDelta = CalculateVectorAngle(vectorU, vectorV);
-		CGFloat vectorRatio = CalculateVectorRatio(vectorU, vectorV);
-		if(vectorRatio <= -1)
-		{
-			angleDelta = M_PI;
-		}
-		else if(vectorRatio >= 1.0)
-		{
-			angleDelta = 0.0;
-		}
-		
-		if (sweepFlag == 0 && angleDelta > 0.0)
-		{
-			angleDelta = angleDelta - 2.0 * M_PI;
-		}
-		if (sweepFlag == 1 && angleDelta < 0.0)
-		{
-			angleDelta = angleDelta + 2.0 * M_PI;
-		}
-		
-		transform = CGAffineTransformTranslate(transform,
-											   centerPoint.x, centerPoint.y);
-		
-		transform = CGAffineTransformRotate(transform, xAxisRotationRadians);
-		
-		CGFloat radius = (xRadius > yRadius) ? xRadius : yRadius;
-		CGFloat scaleX = (xRadius > yRadius) ? 1.0 : xRadius / yRadius;
-		CGFloat scaleY = (xRadius > yRadius) ? yRadius / xRadius : 1.0;
-		
-		transform = CGAffineTransformScale(transform, scaleX, scaleY);
-		
-		CGPathAddArc(thePath, &transform, 0.0, 0.0, radius, startAngle, startAngle+angleDelta,
-					 !sweepFlag); 
-	}
+        // F.6.5   Step 4: Compute θ1 and Δθ
+        
+        // misusing CGPoint as a vector
+        CGPoint vectorX = CGPointMake(1.0, 0.0);
+        CGPoint vectorU = CGPointMake((translatedCurPoint.x-translatedCenterPoint.x)/xRadius,
+                                      (translatedCurPoint.y-translatedCenterPoint.y)/yRadius);
+        CGPoint vectorV = CGPointMake((-1.0f*translatedCurPoint.x-translatedCenterPoint.x)/xRadius,
+                                      (-1.0f*translatedCurPoint.y-translatedCenterPoint.y)/yRadius);
+        
+        CGFloat    startAngle = CalculateVectorAngle(vectorX, vectorU);
+        CGFloat    angleDelta = CalculateVectorAngle(vectorU, vectorV);
+        CGFloat vectorRatio = CalculateVectorRatio(vectorU, vectorV);
+        if(vectorRatio <= -1)
+        {
+            angleDelta = M_PI;
+        }
+        else if(vectorRatio >= 1.0)
+        {
+            angleDelta = 0.0;
+        }
+        
+        if (sweepFlag == 0 && angleDelta > 0.0)
+        {
+            angleDelta = angleDelta - 2.0 * M_PI;
+        }
+        if (sweepFlag == 1 && angleDelta < 0.0)
+        {
+            angleDelta = angleDelta + 2.0 * M_PI;
+        }
+        
+        transform = CGAffineTransformTranslate(transform,
+                                               centerPoint.x, centerPoint.y);
+        
+        transform = CGAffineTransformRotate(transform, xAxisRotationRadians);
+        
+        CGFloat radius = (xRadius > yRadius) ? xRadius : yRadius;
+        CGFloat scaleX = (xRadius > yRadius) ? 1.0 : xRadius / yRadius;
+        CGFloat scaleY = (xRadius > yRadius) ? yRadius / xRadius : 1.0;
+        
+        transform = CGAffineTransformScale(transform, scaleX, scaleY);
+        
+        CGPathAddArc(thePath, &transform, 0.0, 0.0, radius, startAngle, startAngle+angleDelta,
+                     !sweepFlag); 
+    }
 }
 
 NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
@@ -2044,200 +2044,200 @@ NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
 +(CGRect) aspectRatioDrawRectFromString:(NSString*)preserveAspectRatioString givenBounds:(CGRect)viewRect
                             naturalSize:(CGSize)naturalSize
 {
-	CGRect result = viewRect;
-	BOOL	sliceIt = NO;
-	CGFloat		xMin = viewRect.origin.x;
-	CGFloat		xMax = viewRect.origin.x+viewRect.size.width;
-	CGFloat		yMin = viewRect.origin.y+viewRect.size.height ;
-	CGFloat		yMax = viewRect.origin.y;
-	
-	CGFloat		xAnchor = xMin, yAnchor = yMin;
-	
-	NSArray* flavors = [preserveAspectRatioString componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-	for(NSString* aFlavor in flavors)
-	{
-		if([aFlavor isEqualToString:@"meet"])
-		{
-			sliceIt = NO;
-		}
-		else if ([aFlavor isEqualToString:@"slice"])
-		{
-			sliceIt = YES;
-		}
-		else if ([aFlavor isEqualToString:@"xMinYMin"])
-		{
-			xAnchor = xMin;
-			yAnchor = yMin;
-		}
-		else if ([aFlavor isEqualToString:@"xMidYMin"])
-		{
-			xAnchor = (xMax-xMin)/2.0f;
-			yAnchor = yMin;
-		}
-		else if ([aFlavor isEqualToString:@"xMaxYMin"])
-		{
-			xAnchor = xMax;
-			yAnchor = yMin;
-		}
-		else if ([aFlavor isEqualToString:@"xMinYMid"])
-		{
-			xAnchor = xMin;
-			yAnchor = (yMax-yMin)/2.0f;
-		}
-		else if ([aFlavor isEqualToString:@"xMidYMid"])
-		{
-			xAnchor = (xMax-xMin)/2.0f;
-			yAnchor = (yMax-yMin)/2.0f;
-		}
-		else if ([aFlavor isEqualToString:@"xMaxYMid"])
-		{
-			xAnchor = xMax;
-			yAnchor = (yMax-yMin)/2.0f;
-		}
-		else if ([aFlavor isEqualToString:@"xMinYMax"])
-		{
-			xAnchor = xMin;
-			yAnchor = yMax;
-		}
-		else if ([aFlavor isEqualToString:@"xMidYMax"])
-		{
-			xAnchor = (xMax-xMin)/2.0f;
-			yAnchor = yMax;
-		}
-		else if ([aFlavor isEqualToString:@"xMaxYMax"])
-		{
-			xAnchor = xMax;
-			yAnchor = yMax;
-		}
-	}
-	
-	if(sliceIt)
-	{
-		result.size = naturalSize;
-		if(xAnchor == xMax)
-		{
-			result.origin.x = xMax-naturalSize.width;
-		}
-		else if(xAnchor == xMin)
-		{
-			result.origin.x = xMin;
-		}
-		else
-		{
-			result.origin.x = (xMax-xMin)/2.0f-naturalSize.width/2.0f;
-		}
-		if(yAnchor == yMax)
-		{
-			result.origin.y = yMax;
-		}
-		else if(yAnchor == yMin)
-		{
-			result.origin.y = yMin-naturalSize.height;
-		}
-		else
-		{
-			result.origin.y = (yMin-yMax)/2.0f-naturalSize.height/2.0f;
-		}
-	}
-	else
-	{
-		CGFloat naturalAspectRatio = naturalSize.width/naturalSize.height;
-		CGFloat	viewAspectRatio = viewRect.size.width/viewRect.size.height;
-		if(naturalAspectRatio >= viewAspectRatio)
-		{ // extra space on top
-			CGFloat	resultHeight = result.size.width/naturalAspectRatio;
-			result.size.height = resultHeight;
-			if(yAnchor == yMax)
-			{
-				result.origin.y = yMax;
-			}
-			else if(yAnchor == yMin)
-			{
-				result.origin.y = yMin - resultHeight;
-			}
-			else
-			{
-				result.origin.y = yMax+(viewRect.size.height-resultHeight)/2.0f;
-			}
-		}
-		else
-		{ // extra space on edges
-			CGFloat	resultWidth = result.size.height*naturalAspectRatio;
-			result.size.width = resultWidth;
-			if(xAnchor == xMax)
-			{
-				result.origin.x = xMax - resultWidth;
-			}
-			else if(xAnchor == xMin)
-			{
-				result.origin.x = xMin;
-			}
-			else
-			{
-				result.origin.x = xMin+(viewRect.size.width-resultWidth)/2.0f;
-			}
-		}
-	}
-	
-	return result;
+    CGRect result = viewRect;
+    BOOL    sliceIt = NO;
+    CGFloat        xMin = viewRect.origin.x;
+    CGFloat        xMax = viewRect.origin.x+viewRect.size.width;
+    CGFloat        yMin = viewRect.origin.y+viewRect.size.height ;
+    CGFloat        yMax = viewRect.origin.y;
+    
+    CGFloat        xAnchor = xMin, yAnchor = yMin;
+    
+    NSArray* flavors = [preserveAspectRatioString componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    for(NSString* aFlavor in flavors)
+    {
+        if([aFlavor isEqualToString:@"meet"])
+        {
+            sliceIt = NO;
+        }
+        else if ([aFlavor isEqualToString:@"slice"])
+        {
+            sliceIt = YES;
+        }
+        else if ([aFlavor isEqualToString:@"xMinYMin"])
+        {
+            xAnchor = xMin;
+            yAnchor = yMin;
+        }
+        else if ([aFlavor isEqualToString:@"xMidYMin"])
+        {
+            xAnchor = (xMax-xMin)/2.0f;
+            yAnchor = yMin;
+        }
+        else if ([aFlavor isEqualToString:@"xMaxYMin"])
+        {
+            xAnchor = xMax;
+            yAnchor = yMin;
+        }
+        else if ([aFlavor isEqualToString:@"xMinYMid"])
+        {
+            xAnchor = xMin;
+            yAnchor = (yMax-yMin)/2.0f;
+        }
+        else if ([aFlavor isEqualToString:@"xMidYMid"])
+        {
+            xAnchor = (xMax-xMin)/2.0f;
+            yAnchor = (yMax-yMin)/2.0f;
+        }
+        else if ([aFlavor isEqualToString:@"xMaxYMid"])
+        {
+            xAnchor = xMax;
+            yAnchor = (yMax-yMin)/2.0f;
+        }
+        else if ([aFlavor isEqualToString:@"xMinYMax"])
+        {
+            xAnchor = xMin;
+            yAnchor = yMax;
+        }
+        else if ([aFlavor isEqualToString:@"xMidYMax"])
+        {
+            xAnchor = (xMax-xMin)/2.0f;
+            yAnchor = yMax;
+        }
+        else if ([aFlavor isEqualToString:@"xMaxYMax"])
+        {
+            xAnchor = xMax;
+            yAnchor = yMax;
+        }
+    }
+    
+    if(sliceIt)
+    {
+        result.size = naturalSize;
+        if(xAnchor == xMax)
+        {
+            result.origin.x = xMax-naturalSize.width;
+        }
+        else if(xAnchor == xMin)
+        {
+            result.origin.x = xMin;
+        }
+        else
+        {
+            result.origin.x = (xMax-xMin)/2.0f-naturalSize.width/2.0f;
+        }
+        if(yAnchor == yMax)
+        {
+            result.origin.y = yMax;
+        }
+        else if(yAnchor == yMin)
+        {
+            result.origin.y = yMin-naturalSize.height;
+        }
+        else
+        {
+            result.origin.y = (yMin-yMax)/2.0f-naturalSize.height/2.0f;
+        }
+    }
+    else
+    {
+        CGFloat naturalAspectRatio = naturalSize.width/naturalSize.height;
+        CGFloat    viewAspectRatio = viewRect.size.width/viewRect.size.height;
+        if(naturalAspectRatio >= viewAspectRatio)
+        { // extra space on top
+            CGFloat    resultHeight = result.size.width/naturalAspectRatio;
+            result.size.height = resultHeight;
+            if(yAnchor == yMax)
+            {
+                result.origin.y = yMax;
+            }
+            else if(yAnchor == yMin)
+            {
+                result.origin.y = yMin - resultHeight;
+            }
+            else
+            {
+                result.origin.y = yMax+(viewRect.size.height-resultHeight)/2.0f;
+            }
+        }
+        else
+        { // extra space on edges
+            CGFloat    resultWidth = result.size.height*naturalAspectRatio;
+            result.size.width = resultWidth;
+            if(xAnchor == xMax)
+            {
+                result.origin.x = xMax - resultWidth;
+            }
+            else if(xAnchor == xMin)
+            {
+                result.origin.x = xMin;
+            }
+            else
+            {
+                result.origin.x = xMin+(viewRect.size.width-resultWidth)/2.0f;
+            }
+        }
+    }
+    
+    return result;
 }
 
 +(void)imageAtXLinkPath:(NSString*)xLinkPath orAtRelativeFilePath:(NSString*)relativeFilePath withSVGContext:(id<SVGContext>)svgContext intoCallback:(handleRetrievedImage_t)retrievalCallback
 {
     UIImage* result = nil;
     
-	if([xLinkPath hasPrefix:@"data:image/"])
-	{// embedded in the svg itself as a base 64
-		NSString* metaDataString = [xLinkPath substringFromIndex:5];
-		NSRange rangeOfSemicolon = [metaDataString rangeOfString:@";"];
-		NSRange rangeOfComma = [metaDataString rangeOfString:@","];
-		if(rangeOfSemicolon.location != NSNotFound && rangeOfComma.location != NSNotFound)
-		{
-			NSString* mimeString = [metaDataString substringToIndex:rangeOfSemicolon.location];
-			NSString* encodingString = [metaDataString substringWithRange:NSMakeRange(rangeOfSemicolon.location+1,
+    if([xLinkPath hasPrefix:@"data:image/"])
+    {// embedded in the svg itself as a base 64
+        NSString* metaDataString = [xLinkPath substringFromIndex:5];
+        NSRange rangeOfSemicolon = [metaDataString rangeOfString:@";"];
+        NSRange rangeOfComma = [metaDataString rangeOfString:@","];
+        if(rangeOfSemicolon.location != NSNotFound && rangeOfComma.location != NSNotFound)
+        {
+            NSString* mimeString = [metaDataString substringToIndex:rangeOfSemicolon.location];
+            NSString* encodingString = [metaDataString substringWithRange:NSMakeRange(rangeOfSemicolon.location+1,
                                                                                       rangeOfComma.location-rangeOfSemicolon.location-1)];
-			if([encodingString isEqualToString:@"base64"]
-			   && ([mimeString isEqualToString:@"image/jpg"] || [mimeString isEqualToString:@"image/png"]
+            if([encodingString isEqualToString:@"base64"]
+               && ([mimeString isEqualToString:@"image/jpg"] || [mimeString isEqualToString:@"image/png"]
                    || [mimeString isEqualToString:@"image/jpeg"]))
-			{
-				CGImageRef imageRef = 0;
-				NSString*	dataString = [metaDataString substringFromIndex:rangeOfComma.location+1];
-				NSData*    decodedData = [[NSData alloc] initWithBase64EncodedString:dataString options:NSDataBase64DecodingIgnoreUnknownCharacters];
-				CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef) decodedData);
-				if(provider != 0)
-				{
-					if([mimeString isEqualToString:@"image/jpg"] || [mimeString isEqualToString:@"image/jpeg"])
-					{
-						imageRef = CGImageCreateWithJPEGDataProvider(provider, NULL, true,
+            {
+                CGImageRef imageRef = 0;
+                NSString*    dataString = [metaDataString substringFromIndex:rangeOfComma.location+1];
+                NSData*    decodedData = [[NSData alloc] initWithBase64EncodedString:dataString options:NSDataBase64DecodingIgnoreUnknownCharacters];
+                CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef) decodedData);
+                if(provider != 0)
+                {
+                    if([mimeString isEqualToString:@"image/jpg"] || [mimeString isEqualToString:@"image/jpeg"])
+                    {
+                        imageRef = CGImageCreateWithJPEGDataProvider(provider, NULL, true,
                                                                      kColoringRenderingIntent);
-					}
-					else if([mimeString isEqualToString:@"image/png"])
-					{
-						imageRef = CGImageCreateWithPNGDataProvider(provider, NULL, true,
+                    }
+                    else if([mimeString isEqualToString:@"image/png"])
+                    {
+                        imageRef = CGImageCreateWithPNGDataProvider(provider, NULL, true,
                                                                     kColoringRenderingIntent);
-					}
+                    }
                     else if([mimeString isEqualToString:@"image/tif"])
                     {
                     }
-					CFRelease(provider);
-				}
-				if(imageRef != 0)
-				{
-					result = [[UIImage alloc] initWithCGImage:imageRef];
-					CFRelease(imageRef);
-				}
-			}
-		}
+                    CFRelease(provider);
+                }
+                if(imageRef != 0)
+                {
+                    result = [[UIImage alloc] initWithCGImage:imageRef];
+                    CFRelease(imageRef);
+                }
+            }
+        }
         retrievalCallback(result, nil);
-	}
-	else
-	{
-        NSURL*	fileURL = nil;
-		if([relativeFilePath length] && xLinkPath.length)
-		{
-			xLinkPath = [relativeFilePath stringByAppendingPathComponent:xLinkPath];
+    }
+    else
+    {
+        NSURL*    fileURL = nil;
+        if([relativeFilePath length] && xLinkPath.length)
+        {
+            xLinkPath = [relativeFilePath stringByAppendingPathComponent:xLinkPath];
             fileURL = [svgContext absoluteURL:xLinkPath];
-		}
+        }
         else if(xLinkPath.length)
         {
             if ([[NSFileManager defaultManager] fileExistsAtPath:xLinkPath])
@@ -2255,10 +2255,10 @@ NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
             fileURL = [svgContext relativeURL:xLinkPath];
         }
         
-		[GHImageCache retrieveCachedImageFromURL:fileURL intoCallback:^(UIImage *anImage, NSURL *location) {
+        [GHImageCache retrieveCachedImageFromURL:fileURL intoCallback:^(UIImage *anImage, NSURL *location) {
             retrievalCallback(anImage, location);
         }];
-	}
+    }
 }
 
 
@@ -2285,30 +2285,30 @@ NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
 
 +(NSString*) valueForStyleAttribute:(NSString*)attributeName fromDefinition:(NSDictionary*)elementAttributes
 {
-	NSString* result = [elementAttributes objectForKey:attributeName];
-	if(result == nil)
-	{
-		NSString*	styleString = [elementAttributes objectForKey:@"style"];
-		if([styleString length])
-		{
-			NSArray* components = [styleString componentsSeparatedByString:@";"];
-			if([components count])
-			{
-				NSString* prefix = [attributeName stringByAppendingString:@":"];
-				for(NSString* aValuePairString in components)
-				{
+    NSString* result = [elementAttributes objectForKey:attributeName];
+    if(result == nil)
+    {
+        NSString*    styleString = [elementAttributes objectForKey:@"style"];
+        if([styleString length])
+        {
+            NSArray* components = [styleString componentsSeparatedByString:@";"];
+            if([components count])
+            {
+                NSString* prefix = [attributeName stringByAppendingString:@":"];
+                for(NSString* aValuePairString in components)
+                {
                     NSString* trimmedValuePairString = [aValuePairString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-					if([trimmedValuePairString hasPrefix:prefix] && trimmedValuePairString.length > prefix.length)
-					{
-						result = [trimmedValuePairString substringFromIndex:[prefix length]];
+                    if([trimmedValuePairString hasPrefix:prefix] && trimmedValuePairString.length > prefix.length)
+                    {
+                        result = [trimmedValuePairString substringFromIndex:[prefix length]];
                         result = [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-						break;
-					}
-				}
-			}
-		}
-	}
-	return result;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return result;
 }
 
 +(NSString*) valueForStyleAttribute:(NSString*)attributeName fromDefinition:(NSDictionary*)elementAttributes forEnityName:(NSString*)entityTypeName withSVGContext:(id<SVGContext> __nullable)svgContext
@@ -2353,49 +2353,49 @@ NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
 +(void) setupLineDashForQuartzContext:(CGContextRef)quartzContext withSVGDashArray:(NSString*)strokeDashString andPhase:(NSString*)phaseString
 {
     if(strokeDashString != nil)
-	{
-		if([strokeDashString isEqualToString:@"none"]
-		   || [strokeDashString isEqualToString:@"0"])
-		{
-			CGContextSetLineDash(quartzContext, 0.0, NULL, 0);
-		}
-		else
-		{
-			NSArray* dashElements = [strokeDashString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-			NSUInteger countOfElments = [dashElements count];
-			if(countOfElments)
-			{
-				if(countOfElments & 1)
-				{ // double it to make it even
-					dashElements = [dashElements arrayByAddingObjectsFromArray:dashElements];
-					countOfElments = [dashElements count];
-				}
-				CGFloat* dashes = malloc(sizeof(CGFloat)*countOfElments);
-				NSUInteger	index = 0;
-				for(; index < countOfElments; index++)
-				{
-					NSString* aDash = [[dashElements objectAtIndex:index] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-					CGFloat		dashFloatValue = [aDash floatValue];
-					dashes[index] = dashFloatValue;
-				}
-				CGFloat phase = 0.0;
-				
-				if(phaseString != nil)
-				{
-					phase = [phaseString floatValue];
-				}
-				CGContextSetLineDash(quartzContext, phase, dashes, countOfElments);
+    {
+        if([strokeDashString isEqualToString:@"none"]
+           || [strokeDashString isEqualToString:@"0"])
+        {
+            CGContextSetLineDash(quartzContext, 0.0, NULL, 0);
+        }
+        else
+        {
+            NSArray* dashElements = [strokeDashString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
+            NSUInteger countOfElments = [dashElements count];
+            if(countOfElments)
+            {
+                if(countOfElments & 1)
+                { // double it to make it even
+                    dashElements = [dashElements arrayByAddingObjectsFromArray:dashElements];
+                    countOfElments = [dashElements count];
+                }
+                CGFloat* dashes = malloc(sizeof(CGFloat)*countOfElments);
+                NSUInteger    index = 0;
+                for(; index < countOfElments; index++)
+                {
+                    NSString* aDash = [[dashElements objectAtIndex:index] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                    CGFloat        dashFloatValue = [aDash floatValue];
+                    dashes[index] = dashFloatValue;
+                }
+                CGFloat phase = 0.0;
+                
+                if(phaseString != nil)
+                {
+                    phase = [phaseString floatValue];
+                }
+                CGContextSetLineDash(quartzContext, phase, dashes, countOfElments);
                 free(dashes);
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 +(void) setupLineWidthForQuartzContext:(CGContextRef)quartzContext withSVGStrokeString:(NSString*)strokeString withVectorEffect:(NSString*)vectorEffect withSVGContext:(id<SVGContext>)svgContext
 {
     if(strokeString != nil)
     {
-        CGFloat	strokeWidth = [strokeString floatValue];
+        CGFloat    strokeWidth = [strokeString floatValue];
         if([vectorEffect isEqualToString:@"non-scaling-stroke"])
         {
             CGSize convertedSize = CGContextConvertSizeToUserSpace(quartzContext,
@@ -2413,7 +2413,7 @@ NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
 {
     if(opacityString.length && ![opacityString isEqualToString:@"none"])
     {
-        CGFloat	opacity = 1.0;
+        CGFloat    opacity = 1.0;
         if([opacityString isEqualToString:@"inherit"])
         {
             opacity = svgContext.opacity;
@@ -2434,7 +2434,7 @@ NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
 {
     if(opacityString.length)
     {
-        CGFloat	opacity = [opacityString floatValue];
+        CGFloat    opacity = [opacityString floatValue];
         if(opacity >= 0 && opacity <= 1.0)
         {
             CGContextSetAlpha(quartzContext, opacity);
@@ -2470,38 +2470,38 @@ NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
 +(void)setupLineEndForQuartzContext:(CGContextRef)quartzContext withSVGLineEndString:(NSString*)lineCapString
 {
     if(lineCapString != nil)
-	{
-		CGLineCap	lineCapType = kCGLineCapButt;
-		if([lineCapString isEqualToString:@"butt"])
-		{
-		}
-		else if([lineCapString isEqualToString:@"round"])
-		{
-			lineCapType = kCGLineCapRound;
-		}
-		else if([lineCapString isEqualToString:@"square"])
-		{
-			lineCapType = kCGLineCapSquare;
-		}
-		
-		CGContextSetLineCap(quartzContext, lineCapType);
-	}
+    {
+        CGLineCap    lineCapType = kCGLineCapButt;
+        if([lineCapString isEqualToString:@"butt"])
+        {
+        }
+        else if([lineCapString isEqualToString:@"round"])
+        {
+            lineCapType = kCGLineCapRound;
+        }
+        else if([lineCapString isEqualToString:@"square"])
+        {
+            lineCapType = kCGLineCapSquare;
+        }
+        
+        CGContextSetLineCap(quartzContext, lineCapType);
+    }
 }
 
 +(void) setupMiterLimitForQuartzContext:(CGContextRef)quartzContext withSVGMiterLimitString:(NSString*)miterLimitString
 {
     if(miterLimitString != nil)
-	{
-		CGFloat	miterLimit = [miterLimitString floatValue];
-		CGContextSetMiterLimit(quartzContext, miterLimit);
-	}
+    {
+        CGFloat    miterLimit = [miterLimitString floatValue];
+        CGContextSetMiterLimit(quartzContext, miterLimit);
+    }
 }
 
 +(void)setupMiterForQuartzContext:(CGContextRef)quartzContext withSVGMiterString:(NSString*)lineJoinString
 {
     if(lineJoinString.length)
     {
-        CGLineJoin	lineJoinType = kCGLineJoinMiter;
+        CGLineJoin    lineJoinType = kCGLineJoinMiter;
         if([lineJoinString isEqualToString:@"miter"])
         {
         }
