@@ -459,7 +459,7 @@
             id clippingObject = [GHClipGroup clipObjectForAttributes:self.attributes withSVGContext:svgContext];
             if(clippingObject)
             {
-                [clippingObject addToClipForContext:quartzContext  withSVGContext:svgContext objectBoundingBox:CGRectZero];
+//                [clippingObject addToClipForContext:quartzContext  withSVGContext:svgContext objectBoundingBox:CGRectZero];
             }
             
             myRect.origin.x = 0.0;

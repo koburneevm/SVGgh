@@ -2254,10 +2254,16 @@ NSDictionary<NSString*, NSNumber*>* stringToBlendMode()
             xLinkPath = relativeFilePath;
             fileURL = [svgContext relativeURL:xLinkPath];
         }
-        
-        [GHImageCache retrieveCachedImageFromURL:fileURL intoCallback:^(UIImage *anImage, NSURL *location) {
-            retrievalCallback(anImage, location);
-        }];
+        if (fileURL) {
+            [GHImageCache retrieveCachedImageFromURL:fileURL intoCallback:^(UIImage *anImage, NSURL *location) {
+                retrievalCallback(anImage, location);
+            }];
+        } else {
+            NSURL* url = [NSURL URLWithString:xLinkPath];
+            [GHImageCache retrieveCachedImageFromURL:url intoCallback:^(UIImage *anImage, NSURL *location) {
+                retrievalCallback(anImage, location);
+            }];
+        }
     }
 }
 
