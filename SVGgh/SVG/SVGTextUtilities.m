@@ -161,94 +161,133 @@ const double kStandardSVGFontScale = 1.2;
 	return result;
 }
 
-+(CTFontDescriptorRef)	newFontDescriptorFromAttributes:(NSDictionary*) SVGattributes baseDescriptor:(CTFontDescriptorRef)baseDescriptor
-{
-	CTFontDescriptorRef	result = 0;
-	NSDictionary* svgStyleAttributes = [SVGTextUtilities fontAttributesFromSVGAttributes:SVGattributes];
-	if(baseDescriptor == 0)
-	{
-		NSDictionary* coreTextAttributes = [SVGTextUtilities coreTextAttributesFromSVGStyleAttributes:svgStyleAttributes];
-		if([coreTextAttributes count])
-		{
-			CTFontDescriptorRef unmatchedResult = CTFontDescriptorCreateWithAttributes((__bridge CFDictionaryRef)coreTextAttributes);
-            
-            
-            NSMutableSet* specifiedAttributes = [NSMutableSet setWithArray:[coreTextAttributes allKeys]];
-            
++ (CTFontDescriptorRef)newFontDescriptorFromAttributes:(NSDictionary*)SVGattributes
+                                        baseDescriptor:(CTFontDescriptorRef)baseDescriptor {
 
-            
-            CTFontDescriptorRef missSizedResult = CTFontDescriptorCreateMatchingFontDescriptor (unmatchedResult,
-                                                                                                (__bridge CFSetRef)specifiedAttributes
-                                                                                                );
-            if(missSizedResult != 0)
-            {
-                CFRelease(unmatchedResult);
-                
-                result = CTFontDescriptorCreateCopyWithAttributes (missSizedResult,
-                                                                   (__bridge CFDictionaryRef)coreTextAttributes
-                                                                   );
-                if(result != 0)
-                {
-                    CFRelease(missSizedResult);
-                }
-                else
-                {
-                    result = missSizedResult;
-                }
-            }
-            else
-            {
-                result = unmatchedResult;
-            }
-            
-            CTFontDescriptorRef entryResult = result;
-            result = [SVGTextUtilities coreTextDescriptor: entryResult addingAttributes: SVGattributes];
-            
-            CFRelease(entryResult);
-            
-            // work around becuase kCTFontSymbolicTrait wasn't being honored by matching
-            NSDictionary* fontTraitsDictionary = [coreTextAttributes objectForKey:(NSString*)kCTFontTraitsAttribute];
-            uint32_t	fontTraitMask = [[fontTraitsDictionary objectForKey:(NSString*)kCTFontSymbolicTrait] unsignedIntValue];
-            if(fontTraitMask)
-            {
-                CTFontDescriptorRef traitDescriptor = CTFontDescriptorCreateCopyWithSymbolicTraits(result, fontTraitMask, fontTraitMask);
-                if(traitDescriptor != 0)
-                {
-                    CFRelease(result);
-                    result = traitDescriptor;
-                }
-            }
-		}
-		else
-		{
-			CTFontRef defaultFontRef = CTFontCreateUIFontForLanguage(kCTFontUIFontUser, 0.0, 0);
-            if(defaultFontRef == 0)
-            {
-                NSString* fontName = @"Helvetica";
-                CFStringRef fontNameCF = (__bridge CFStringRef)(fontName);
-                defaultFontRef = CTFontCreateWithName(fontNameCF,12.0, NULL );
-            }
-            result =  CTFontCopyFontDescriptor(defaultFontRef);
-            CFRelease(defaultFontRef);
-			
-		}
-	}
-	else
-	{
-		NSDictionary* coreTextAttributes = [SVGTextUtilities coreTextAttributesFromSVGStyleAttributes:svgStyleAttributes baseDescriptor:baseDescriptor];
-		
-		if([coreTextAttributes count] == 0)
-		{
-			CFRetain(baseDescriptor);
-			result = baseDescriptor;
-		}
-		else
-		{
-			result =  CTFontDescriptorCreateCopyWithAttributes(baseDescriptor,
-															   (__bridge CFDictionaryRef)coreTextAttributes);
-		}
-	}
-	return result;
+    NSMutableDictionary* attributes = [NSMutableDictionary dictionary];
+    NSArray* listOfFontFamilies =  ArrayForSVGAttribute(SVGattributes, @"font-family");
+    NSString* firstFamily = [listOfFontFamilies firstObject];
+    NSNumber* size = SVGattributes[@"font-size"];
+
+    if (firstFamily) {
+        attributes[UIFontDescriptorFamilyAttribute] = firstFamily;
+    }
+    if (size) {
+        attributes[UIFontDescriptorSizeAttribute] = size;
+    }
+    UIFontDescriptor* descriptor = [UIFontDescriptor fontDescriptorWithFontAttributes:attributes];
+    NSNumber* weight = SVGattributes[@"font-weight"];
+    if (weight) {
+        UIFontWeight weightValue = UIFontWeightRegular;
+        switch (weight.intValue) {
+            case 100:
+                weightValue = UIFontWeightUltraLight;
+                break;
+            case 200:
+                weightValue = UIFontWeightThin;
+                break;
+            case 300:
+                weightValue = UIFontWeightLight;
+                break;
+            case 400:
+                weightValue = UIFontWeightRegular;
+                break;
+            case 500:
+                weightValue = UIFontWeightMedium;
+                break;
+            case 600:
+                weightValue = UIFontWeightSemibold;
+                break;
+            case 700:
+                weightValue = UIFontWeightBold;
+                break;
+            case 800:
+                weightValue = UIFontWeightHeavy;
+                break;
+            case 900:
+                weightValue = UIFontWeightBlack;
+                break;
+            default:
+                break;
+        }
+        NSDictionary* traits = @{
+            UIFontWeightTrait: @(weightValue)
+        };
+        descriptor = [descriptor fontDescriptorByAddingAttributes: @{
+            UIFontDescriptorTraitsAttribute: traits
+        }];
+    }
+    UIFont* font = [UIFont fontWithDescriptor:descriptor size:size.floatValue];
+    descriptor = font.fontDescriptor;
+    return CFBridgingRetain(descriptor);
+
+//    CTFontDescriptorRef    result = 0;
+//    NSDictionary* svgStyleAttributes = [SVGTextUtilities fontAttributesFromSVGAttributes:SVGattributes];
+//    if(baseDescriptor == 0) {
+//        NSDictionary* coreTextAttributes = [SVGTextUtilities coreTextAttributesFromSVGStyleAttributes:svgStyleAttributes];
+//        if ([coreTextAttributes count]) {
+//            CTFontDescriptorRef unmatchedResult = CTFontDescriptorCreateWithAttributes((__bridge CFDictionaryRef)coreTextAttributes);
+//
+//            NSMutableSet* specifiedAttributes = [NSMutableSet setWithArray:[coreTextAttributes allKeys]];
+//
+//            CTFontDescriptorRef missSizedResult = CTFontDescriptorCreateMatchingFontDescriptor (unmatchedResult,
+//                                                                                                (__bridge CFSetRef)specifiedAttributes
+//                                                                                                );
+//            if(missSizedResult != 0) {
+//                CFRelease(unmatchedResult);
+//
+//                result = CTFontDescriptorCreateCopyWithAttributes (missSizedResult,
+//                                                                   (__bridge CFDictionaryRef)coreTextAttributes
+//                                                                   );
+//                if(result != 0) {
+//                    CFRelease(missSizedResult);
+//                } else {
+//                    result = missSizedResult;
+//                }
+//            } else {
+//                result = unmatchedResult;
+//            }
+//
+//            CTFontDescriptorRef entryResult = result;
+//            result = [SVGTextUtilities coreTextDescriptor: entryResult addingAttributes: SVGattributes];
+//
+//            CFRelease(entryResult);
+//
+//            // work around becuase kCTFontSymbolicTrait wasn't being honored by matching
+//            NSDictionary* fontTraitsDictionary = [coreTextAttributes objectForKey:(NSString*)kCTFontTraitsAttribute];
+//            uint32_t    fontTraitMask = [[fontTraitsDictionary objectForKey:(NSString*)kCTFontSymbolicTrait] unsignedIntValue];
+//            if(fontTraitMask) {
+//                CTFontDescriptorRef traitDescriptor = CTFontDescriptorCreateCopyWithSymbolicTraits(result, fontTraitMask, fontTraitMask);
+//                if(traitDescriptor != 0) {
+//                    CFRelease(result);
+//                    result = traitDescriptor;
+//                }
+//            }
+//        } else {
+//            CTFontRef defaultFontRef = CTFontCreateUIFontForLanguage(kCTFontUIFontUser, 0.0, 0);
+//            if(defaultFontRef == 0) {
+//                NSString* fontName = @"Helvetica";
+//                CFStringRef fontNameCF = (__bridge CFStringRef)(fontName);
+//                defaultFontRef = CTFontCreateWithName(fontNameCF,12.0, NULL );
+//            }
+//            result =  CTFontCopyFontDescriptor(defaultFontRef);
+//            CFRelease(defaultFontRef);
+//        }
+//    } else {
+//        NSDictionary* coreTextAttributes = [SVGTextUtilities coreTextAttributesFromSVGStyleAttributes:svgStyleAttributes
+//                                                                                       baseDescriptor:baseDescriptor];
+//
+//        if([coreTextAttributes count] == 0) {
+//            CFRetain(baseDescriptor);
+//            result = baseDescriptor;
+//        } else {
+//            result =  CTFontDescriptorCreateCopyWithAttributes(baseDescriptor,
+//                                                               (__bridge CFDictionaryRef)coreTextAttributes);
+//        }
+//    }
+//    UIFontDescriptor* descriptor = (__bridge UIFontDescriptor *)(result);
+//    NSLog(@"got descriptor %@", descriptor);
+//    return result;
 }
 
 +(CTFontRef) newFontRefFromFontDescriptor:(CTFontDescriptorRef)fontDescriptor
