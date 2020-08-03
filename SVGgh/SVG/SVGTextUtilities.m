@@ -163,6 +163,11 @@ const double kStandardSVGFontScale = 1.2;
 
 + (CTFontDescriptorRef)newFontDescriptorFromAttributes:(NSDictionary*)SVGattributes
                                         baseDescriptor:(CTFontDescriptorRef)baseDescriptor {
+    
+    if (baseDescriptor != nil) {
+        CFRetain(baseDescriptor);
+        return baseDescriptor;
+    }
 
     NSMutableDictionary* attributes = [NSMutableDictionary dictionary];
     NSArray* listOfFontFamilies =  ArrayForSVGAttribute(SVGattributes, @"font-family");
