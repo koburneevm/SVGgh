@@ -662,7 +662,7 @@
 
 - (CGFloat)strokeWidth
 {
-    CGFloat strokeWidth = 0.0;
+    CGFloat strokeWidth = 1.0;
     NSString *result = [self valueForStyleAttribute:@"stroke-width" withSVGContext:nil];
     if (result && [[NSScanner scannerWithString:result] scanFloat:NULL])
     {
